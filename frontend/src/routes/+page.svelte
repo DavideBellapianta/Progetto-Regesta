@@ -15,7 +15,7 @@
 		try {
 			// Per velocizzare, facciamo partire tutte le chiamate API in parallelo
 			const [randomRes, foodRes, medicalRes] = await Promise.all([
-				fetch('http://127.0.0.1:5000/prodotti?random=4'), // Chiede 4 prodotti casuali
+				fetch('http://127.0.0.1:5000/prodotti?random=6'), // Chiede 4 prodotti casuali
 				fetch('http://127.0.0.1:5000/prodotti?categoria=food'), // Chiede i prodotti 'food'
 				fetch('http://127.0.0.1:5000/prodotti?categoria=medical') // Chiede i prodotti 'medical'
 			]);
@@ -31,11 +31,9 @@
 	});
 </script>
 
-<div>
-	<Navbar />
-</div>
+
 <div
-	class="min-h-screen bg-gray-100 transition-all duration-300"
+	class="min-h-screen  transition-all duration-300"
 	class:pb-96={$isCartOpenMobile}
 	class:md:pb-0={true}
 >

@@ -1,12 +1,57 @@
 <script>
+	import Navbar from '$lib/components/Navbar.svelte';
+	import SnakeGame from '$lib/components/SnakeGame.svelte';
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
 
-	let { children } = $props();
+	// Importiamo tutti e tre i blob
+	import blob from '$lib/assets/blob.svg';
+	import blob1 from '$lib/assets/blob (1).svg';
+	import blob2 from '$lib/assets/blob (2).svg';
+
+	let showSnake = false;
+	const secretCode = ['s', 'n', 'a', 'k', 'e'];
+	let keySequence = [];
+
+	function handleSecretCode(e) {
+		keySequence.push(e.key.toLowerCase());
+		keySequence.splice(-secretCode.length - 1, keySequence.length - secretCode.length);
+		if (keySequence.join('') === secretCode.join('')) {
+			showSnake = !showSnake;
+		}
+	}
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
+<svelte:window on:keydown={handleSecretCode} />
 
-{@render children?.()}
+{#if showSnake}
+	<SnakeGame />
+{/if}
+
+<div class="relative min-h-screen">
+	<div aria-hidden="true" class="fixed inset-0 -z-10 overflow-hidden">
+		<img
+			src={blob1}
+			alt=""
+			class="animate-blob animation-delay-2000 absolute -right-120 scale-120 -top-80 h-[60rem] w-[80rem] text-indigo-500 opacity-100"
+		/>
+
+		<img
+			src={blob2}
+			alt=""
+			class="animate-blob animation-delay-4000 absolute -left-90 -top-50 h-[55rem] w-[55rem] text-teal-400 opacity-100"
+		/>
+
+		<img
+			src={blob}
+			alt=""
+			class="animate-blob absolute -bottom-1/2 left-160 h-[60rem] w-[60rem] -translate-x-1/2 text-purple-500 opacity-100"
+		/>
+	</div>
+
+	<div class="isolate flex min-h-screen flex-col">
+		<Navbar />
+		<main class="flex-grow">
+			<slot />
+		</main>
+	</div>
+</div>

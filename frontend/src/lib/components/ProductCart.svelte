@@ -22,25 +22,6 @@
 		}
 	}
 
-	function handleTouchStart(e) {
-		touchStartX = e.touches[0].clientX;
-	}
-
-	function handleTouchMove(e) {
-		touchEndX = e.touches[0].clientX;
-	}
-
-	function handleTouchEnd() {
-		if (touchStartX - touchEndX > 75) {
-			goNext();
-		}
-		if (touchStartX - touchEndX < -75) {
-			goPrev();
-		}
-		touchStartX = 0;
-		touchEndX = 0;
-	}
-
 	$: visibleCount = (() => {
 		if (windowWidth < 640) return 1;
 		if (windowWidth < 768) return 2;
@@ -74,9 +55,6 @@
 
 		<div
 			class="overflow-hidden"
-			on:touchstart={handleTouchStart}
-			on:touchmove={handleTouchMove}
-			on:touchend={handleTouchEnd}
 		>
 			{#if products.length > 0}
 				<div class="flex transition-transform duration-300 ease-in-out -mx-3">

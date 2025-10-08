@@ -21,28 +21,104 @@ collection.delete_many({})
 # Lista dei prodotti con URL delle immagini inseriti a mano
 prodotti_da_inserire = [
     # Categoria Food
-    { "nome": "Tavoletta di cioccolato fondente", "prezzo_lordo": 1.99, "categoria": "food", "immagine_url": "https://images.unsplash.com/photo-1623660053975-cf75a8be0908?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Q2hvY29sYXRlJTIwJTIwYmFyfGVufDB8fDB8fHww" },
-    { "nome": "Acqua minerale naturale (1L)", "prezzo_lordo": 0.25, "categoria": "food", "immagine_url": "https://images.unsplash.com/photo-1544509925-a45ab789916b?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fEJvdHRsZSUyMG9mJTIwd2F0ZXJ8ZW58MHx8MHx8fDA%3D" },
-    { "nome": "Lattina di Coca Cola", "prezzo_lordo": 0.60, "categoria": "food", "immagine_url": "https://images.unsplash.com/photo-1667204651371-5d4a65b8b5a9?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Q29jYSUyMGNvbGElMjBjYW58ZW58MHx8MHx8fDA%3D" },
-    { "nome": "Pacchetto di patatine classiche", "prezzo_lordo": 1.20, "categoria": "food", "immagine_url": "https://images.unsplash.com/photo-1741520149938-4f08654780ef?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGNoaXBzJTIwcGFja2V0fGVufDB8fDB8fHww" },
-    { "nome": "Scatola di biscotti al cioccolato", "prezzo_lordo": 2.50, "categoria": "food", "immagine_url": "https://unsplash.com/it/foto/cupcake-al-cioccolato-con-glassa-bianca-in-cima-3jNTCCeC7gI" },
-    { "nome": "Spaghettoni N7 Barilla (500g)", "prezzo_lordo": 0.89, "categoria": "food", "immagine_url": "https://images.unsplash.com/photo-1718043934012-380f4e72a1cf?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmFyaWxsYXxlbnwwfHwwfHx8MA%3D%3D" },
-    { "nome": "Vasetto di sugo al basilico", "prezzo_lordo": 1.50, "categoria": "food", "immagine_url": "https://images.unsplash.com/photo-1741594822867-0d849faff7e3?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fHRvbWF0byUyMHNhdWNlJTIwYm90dGxlfGVufDB8fDB8fHww" },
+    { 
+        "nome": "Tavoletta di cioccolato fondente 85%", 
+        "prezzo_lordo": 2.49, 
+        "categoria": "food", 
+        "immagine_url": "https://images.unsplash.com/photo-1623660053975-cf75a8be0908?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Un'intensa esperienza di gusto con il nostro cioccolato extra fondente all'85%. Perfetto per una pausa energizzante o per la preparazione di dolci raffinati. Cacao proveniente da agricoltura sostenibile."
+    },
+    { 
+        "nome": "Acqua Minerale Naturale (1.5L)", 
+        "prezzo_lordo": 0.35, 
+        "categoria": "food", 
+        "immagine_url": "https://images.unsplash.com/photo-1544509925-a45ab789916b?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Acqua minerale oligominerale, microbiologicamente pura. Ideale per l'idratazione quotidiana di tutta la famiglia. Residuo fisso a 180°C: 45mg/L."
+    },
+    { 
+        "nome": "Lattina di Coca-Cola Original Taste", 
+        "prezzo_lordo": 0.79, 
+        "categoria": "food", 
+        "immagine_url": "https://images.unsplash.com/photo-1667204651371-5d4a65b8b5a9?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Il gusto inimitabile di Coca-Cola in un formato pratico da 33cl. Servire fredda per un'esperienza di gusto ottimale. Lattina 100% riciclabile."
+    },
+    { 
+        "nome": "Patatine Classiche in Busta (150g)", 
+        "prezzo_lordo": 1.49, 
+        "categoria": "food", 
+        "immagine_url": "https://images.unsplash.com/photo-1694101493160-10f1257fe9fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGNoaXBzJTIwYmFnfGVufDB8fDB8fHww",
+        "descrizione": "Croccanti patatine fritte dal gusto classico e irresistibile. Solo patate selezionate, olio di semi di girasole e un pizzico di sale. Senza glutine."
+    },
+    { 
+        "nome": "Spaghettoni N.7 Barilla (500g)", 
+        "prezzo_lordo": 1.29, 
+        "categoria": "food", 
+        "immagine_url": "https://images.unsplash.com/photo-1718043934012-380f4e72a1cf?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Spaghettoni di semola di grano duro, dalla consistenza corposa e ruvida che cattura ogni tipo di sugo. Tempo di cottura: 11 minuti. 100% grano italiano."
+    },
 
     # Categoria Medical
-    { "nome": "Confezione di cerotti assortiti", "prezzo_lordo": 4.75, "categoria": "medical", "immagine_url": "https://plus.unsplash.com/premium_photo-1672073399147-53ebffa8395b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGJhbmQtYWlkfGVufDB8fDB8fHww" },
-    { "nome": "Termometro digitale", "prezzo_lordo": 8.90, "categoria": "medical", "immagine_url": "https://images.unsplash.com/photo-1615486511369-31ff08672204?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { "nome": "Flacone di disinfettante per le mani", "prezzo_lordo": 3.20, "categoria": "medical", "immagine_url": "https://images.unsplash.com/photo-1608564348103-2b78891150cf?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGFuZCUyMHNhbml0aXplcnxlbnwwfHwwfHx8MA%3D%3D" },
-    { "nome": "Sciroppo per la tosse", "prezzo_lordo": 9.50, "categoria": "medical", "immagine_url": "https://images.unsplash.com/photo-1617800553712-2db4ebd9d908?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y291Z2glMjBzeXJ1cHxlbnwwfHwwfHx8MA%3D%3D" },
-    { "nome": "Pacco di mascherine chirurgiche (10 pz)", "prezzo_lordo": 5.00, "categoria": "medical", "immagine_url": "https://images.unsplash.com/photo-1622631090360-ba04acd2e02f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fG1hc2tzfGVufDB8fDB8fHww" },
+    { 
+        "nome": "Confezione di Cerotti Assortiti (40 pz)", 
+        "prezzo_lordo": 3.99, 
+        "categoria": "medical", 
+        "immagine_url": "https://plus.unsplash.com/premium_photo-1672073399147-53ebffa8395b?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Set di 40 cerotti ipoallergenici e traspiranti in formati assortiti. Resistenti all'acqua e adatti per piccoli tagli e abrasioni. Indispensabili nel kit di primo soccorso."
+    },
+    { 
+        "nome": "Termometro Digitale a Infrarossi", 
+        "prezzo_lordo": 19.90, 
+        "categoria": "medical", 
+        "immagine_url": "https://images.unsplash.com/photo-1615486511369-31ff08672204?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Termometro frontale a infrarossi per una misurazione della temperatura rapida, precisa e senza contatto. Display LCD retroilluminato e memoria delle ultime misurazioni."
+    },
+    { 
+        "nome": "Sciroppo per la Tosse (150ml)", 
+        "prezzo_lordo": 8.50, 
+        "categoria": "medical", 
+        "immagine_url": "https://images.unsplash.com/photo-1617800553712-2db4ebd9d908?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Sciroppo a base di estratti naturali per calmare la tosse secca e grassa. Formula adatta per adulti e bambini sopra i 6 anni. Aroma miele e limone."
+    },
+    { 
+        "nome": "Pacco Mascherine Chirurgiche (10 pz)", 
+        "prezzo_lordo": 2.99, 
+        "categoria": "medical", 
+        "immagine_url": "https://images.unsplash.com/photo-1622631090360-ba04acd2e02f?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Confezione da 10 mascherine chirurgiche monouso a 3 veli. Elevata efficienza di filtrazione batterica (BFE ≥ 98%) e ottima respirabilità. Dispositivo Medico di Classe I."
+    },
 
     # Categoria Other
-    { "nome": "Mazzo di carte da gioco", "prezzo_lordo": 3.50, "categoria": "other", "immagine_url": "https://images.unsplash.com/photo-1501003878151-d3cb87799705?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2FyZCUyMGdhbWV8ZW58MHx8MHx8fDA%3D" },
-    { "nome": "Set di 3 penne a sfera", "prezzo_lordo": 2.10, "categoria": "other", "immagine_url": "https://images.unsplash.com/photo-1601311911926-dbdae16e54c9?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2V0JTIwb2YlMjAzJTIwcGVufGVufDB8fDB8fHww" },
-    { "nome": "Caricabatterie USB per smartphone", "prezzo_lordo": 15.00, "categoria": "other", "immagine_url": "https://plus.unsplash.com/premium_photo-1669262667978-5d4aafe29dd5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8VVNCJTIwY2FibGV8ZW58MHx8MHx8fDA%3D" },
-    { "nome": "Lampadina LED a risparmio energetico", "prezzo_lordo": 4.50, "categoria": "other", "immagine_url": "https://plus.unsplash.com/premium_photo-1672166939591-b2547bd18fca?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8TGVkJTIwbGFtcHxlbnwwfHwwfHx8MA%3D%3D" },
-    { "nome": "Confezione di batterie stilo AAA (4 pz)", "prezzo_lordo": 3.99, "categoria": "other", "immagine_url": "https://images.unsplash.com/photo-1704895336495-bdad8efe8d4e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8QmF0dGVyeSUyMEFBQXxlbnwwfHwwfHx8MA%3D%3D" }
+    { 
+        "nome": "Mazzo di Carte da Gioco Francesi", 
+        "prezzo_lordo": 2.90, 
+        "categoria": "other", 
+        "immagine_url": "https://images.unsplash.com/photo-1501003878151-d3cb87799705?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Mazzo da 54 carte da gioco classiche con semi francesi. Finitura telata per una maggiore durata e una migliore maneggevolezza. Perfette per Poker, Burraco e altri giochi."
+    },
+    { 
+        "nome": "Caricabatterie USB-C Rapido (20W)", 
+        "prezzo_lordo": 14.99, 
+        "categoria": "other", 
+        "immagine_url": "https://plus.unsplash.com/premium_photo-1669262667978-5d4aafe29dd5?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Alimentatore da parete con porta USB-C da 20W e tecnologia Power Delivery. Ricarica rapidamente il tuo smartphone, tablet e altri dispositivi compatibili. Design compatto e portatile."
+    },
+    { 
+        "nome": "Lampadina LED E27 (10W)", 
+        "prezzo_lordo": 3.50, 
+        "categoria": "other", 
+        "immagine_url": "https://plus.unsplash.com/premium_photo-1672166939591-b2547bd18fca?w=1000&auto=format&fit=crop&q=60",
+        "descrizione": "Lampadina LED con attacco E27, 10W di consumo (equivalente a 75W tradizionali). Luce bianca calda (2700K) per un'atmosfera accogliente. Classe di efficienza energetica A+."
+    },
+    { 
+        "nome": "Confezione Batterie Stilo AAA (4 pz)", 
+        "prezzo_lordo": 3.49, 
+        "categoria": "other", 
+        "immagine_url": "https://images.unsplash.com/photo-1704895336143-334cc3bccfc6?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "descrizione": "Pacco da 4 batterie alcaline tipo AAA a lunga durata. Ideali per telecomandi, giocattoli e piccoli dispositivi elettronici. Affidabilità garantita."
+    }
 ]
+collection.create_index([('nome', 'text')])
+
 
 # Inserisce tutti i prodotti
 collection.insert_many(prodotti_da_inserire)

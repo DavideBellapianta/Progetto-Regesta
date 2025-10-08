@@ -39,7 +39,7 @@
                                 <p class="font-semibold text-sm">
                                     {(item.prezzo_lordo * item.quantita).toFixed(2)}€
                                 </p>
-                                <button on:click={() => cart.remove(item.nome)} class="text-xs text-red-500 hover:underline mt-1">
+                                <button on:click={() => cart.remove(item.nome)} class="text-xs text-black-500 hover:underline mt-1">
                                     Rimuovi
                                 </button>
                             </div>

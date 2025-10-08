@@ -190,6 +190,32 @@ def get_prodotto_singolo(slug_prodotto):
     except Exception as e:
         print(f"Errore durante il recupero del prodotto singolo: {e}")
         return jsonify({"error": "Errore interno del server"}), 500
+    
+@app.route('/api/cerca', methods=['GET'])
+def cerca_prodotti():
+    """
+    Cerca i prodotti nel database in base a un termine di ricerca parziale.
+    Restituisce una lista di suggerimenti.
+    """
+    # Ottiene il termine di ricerca dalla query string (es. /api/cerca?q=ciocc)
+    query = request.args.get('q', '')
+    
+    if not query:
+        return jsonify([]) # Se la query è vuota, restituisce una lista vuota
+
+    try:
+        # Crea un'espressione regolare per una ricerca case-insensitive
+        search_regex = re.compile(query, re.IGNORECASE)
+        
+        # Cerca nel database i prodotti il cui nome corrisponde al pattern
+        # Limita i risultati a un massimo di 5 per non affollare il dropdown
+        risultati = list(collection.find({'$text': {'$search': query}}, {'_id': 0}).limit(5))
+        
+        return jsonify(risultati)
+            
+    except Exception as e:
+        print(f"Errore durante la ricerca: {e}")
+        return jsonify({"error": "Errore interno del server"}), 500
 # --- 5. AVVIO DEL SERVER ---
 
 if __name__ == '__main__':

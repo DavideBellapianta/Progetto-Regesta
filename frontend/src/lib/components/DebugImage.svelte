@@ -35,7 +35,7 @@
 		<h3 class="text-green-700 font-bold">SUCCESSO! Immagine caricata dal backend:</h3>
 		<img src={imageUrl} alt="Immagine di test dal backend" class="mt-4 border-2 border-green-500" />
 	{:else if error}
-		<h3 class="text-red-700 font-bold">ERRORE! Impossibile caricare l'immagine.</h3>
+		<h3 class="text-black-700 font-bold">ERRORE! Impossibile caricare l'immagine.</h3>
 		<p class="text-black mt-2">Dettaglio errore: <span class="font-mono bg-red-100 p-1">{error}</span></p>
 		<p class="text-black mt-2">
 			Controlla la scheda "Console" e "Network" negli strumenti per sviluppatori (F12) per maggiori

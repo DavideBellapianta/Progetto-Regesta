@@ -2,24 +2,29 @@
 	import { onMount } from 'svelte';
 	import { cart, cartItemsCount, isCartOpenMobile } from '../stores.js';
 	import CartMenu from './CartMenu.svelte';
-	
+	import { createSlug } from '$lib/utils.js'; // Importa da un file di utility
 
-	// --- STATO DEL COMPONENTE ---
+	// --- 1. COSTANTI DI CONFIGURAZIONE ---
+	// Raggruppiamo i valori "magici" in costanti per una facile modifica
+	const API_BASE_URL = 'http://127.0.0.1:5000';
+	const SEARCH_DEBOUNCE_MS = 300;
+
+	// --- 2. STATO DEL COMPONENTE ---
+	// Le variabili che gestiscono lo stato della UI
 	let location = 'Caricamento...';
 	let locationSource = null;
 	let isLoadingPrecise = false;
 	let searchTerm = '';
-	let isCartOpen = false;
+	let searchResults = [];
+	let debounceTimer;
+	let isSearchFocused = false;
 
-	// --- FUNZIONI ---
-	function toggleCartMenu() {
-		isCartOpenMobile.update((isOpen) => !isOpen);
-	}
-
+	// --- 3. AZIONI SVELTE (Best Practice) ---
+	// 'clickOutside' è ora una "Action", un modo riutilizzabile per aggiungere funzionalità a un elemento
 	function clickOutside(node) {
 		const handleClick = (event) => {
 			if (node && !node.contains(event.target) && !event.defaultPrevented) {
-				isCartOpenMobile.set(false); // Chiude il menù aggiornando lo store
+				isCartOpenMobile.set(false);
 			}
 		};
 		document.addEventListener('click', handleClick, true);
@@ -30,47 +35,46 @@
 		};
 	}
 
-	// Funzione per la ricerca
-	function handleSearch() {
+	// --- 4. FUNZIONI DI GESTIONE EVENTI ---
+	function toggleCartMenu() {
+		isCartOpenMobile.update((isOpen) => !isOpen);
+	}
+
+	function handleSearchSubmit() {
 		if (searchTerm.trim() !== '') {
 			window.location.href = `/cerca?q=${encodeURIComponent(searchTerm.trim())}`;
 		}
 	}
 
-	// --- LOGICA DI GEOLOCALIZZAZIONE ---
-	onMount(async () => {
-		try {
-			const response = await fetch('http://127.0.0.1:5000/api/geo-ip');
-			if (response.ok) {
-				const data = await response.json();
-				location = data.error ? data.error : `${data.city}, ${data.country_code}`;
-				if (!data.error) locationSource = 'ip';
-			} else {
-				location = 'Posizione non trovata';
-			}
-		} catch (error) {
-			console.error('Errore nel fetch della geolocalizzazione IP:', error);
-			location = 'Backend non raggiungibile';
-		}
-	});
-
-	async function getPreciseLocation() {
-		if (!('geolocation' in navigator)) {
-			alert('La geolocalizzazione non è supportata da questo browser.');
+	// --- 5. LOGICA API E ASINCRONA ---
+	async function onSearchInput() {
+		clearTimeout(debounceTimer);
+		if (searchTerm.length < 2) {
+			searchResults = [];
 			return;
 		}
+		debounceTimer = setTimeout(async () => {
+			try {
+				const response = await fetch(`${API_BASE_URL}/api/cerca?q=${encodeURIComponent(searchTerm)}`);
+				if (response.ok) searchResults = await response.json();
+			} catch (e) {
+				console.error("Errore autocompletamento ricerca:", e);
+			}
+		}, SEARCH_DEBOUNCE_MS);
+	}
+
+	async function getPreciseLocation() {
+		if (!('geolocation' in navigator)) return;
 		isLoadingPrecise = true;
 		navigator.geolocation.getCurrentPosition(
 			async (position) => {
 				const { latitude, longitude } = position.coords;
 				try {
-					const response = await fetch(
-						`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-					);
+					const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
 					if (response.ok) {
 						const data = await response.json();
 						const city = data.address.city || data.address.town || data.address.village;
-						const country = data.address.country;
+						const country = data.address.country_code.toUpperCase();
 						location = `${city}, ${country}`;
 						locationSource = 'precise';
 					} else {
@@ -83,23 +87,40 @@
 				isLoadingPrecise = false;
 			},
 			(error) => {
-				// Gestione errore geolocalizzazione
+				console.error("Errore geolocalizzazione:", error);
+				if (error.code === 1) alert('Hai negato il permesso alla geolocalizzazione.');
 				isLoadingPrecise = false;
 			}
 		);
 	}
+
+	// --- 6. CICLO DI VITA SVELTE ---
+	onMount(async () => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/api/geo-ip`);
+			if (response.ok) {
+				const data = await response.json();
+				location = data.error ? data.error : `${data.city}, ${data.country_code}`;
+				if (!data.error) locationSource = 'ip';
+			} else {
+				location = 'Posizione non trovata';
+			}
+		} catch (error) {
+			console.error('Errore nel fetch della geolocalizzazione IP:', error);
+			location = 'Backend non raggiungibile';
+		}
+	});
 </script>
 
-<nav class="sticky top-0 z-50 bg-slate-900 text-white shadow-lg">
+<nav class="navbar-theme sticky top-0 z-50 shadow-lg">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="flex h-16 items-center justify-between">
-			<div class="flex-shrink-0">
-				<a href="/" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300">POS Register</a
-				>
-			</div>
+		<div class="flex h-16 items-center justify-between gap-8">
+			<div class="flex items-center gap-6">
+				<div class="flex-shrink-0">
+					<a href="/" class="text-2xl font-bold text-black hover:text-indigo-300"> POS Register </a>
+				</div>
 
-			<div class="mx-4 hidden flex-grow items-center justify-center md:flex">
-				<div class="mr-6 flex items-center text-sm text-slate-400">
+				<div class="hidden items-center text-sm text-black lg:flex">
 					<svg class="mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 						<path
 							fill-rule="evenodd"
@@ -108,24 +129,22 @@
 						/>
 					</svg>
 					<span>{location}</span>
-
 					{#if locationSource === 'ip' && !isLoadingPrecise}
 						<button
 							on:click={getPreciseLocation}
 							title="Migliora precisione"
 							class="ml-2 text-indigo-400 hover:text-indigo-300"
 						>
-							<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+							<svg class="h-5 w-5" viewBox="0 0 20 20" fill="black">
 								<path
 									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
 								/>
 							</svg>
 						</button>
 					{/if}
-
 					{#if isLoadingPrecise}
 						<div class="ml-2">
-							<svg class="h-5 w-5 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+							<svg class="h-5 w-5 animate-spin text-black" fill="none" viewBox="0 0 24 24">
 								<circle
 									class="opacity-25"
 									cx="12"
@@ -143,36 +162,66 @@
 						</div>
 					{/if}
 				</div>
-
-				<form on:submit|preventDefault={handleSearch} class="relative w-full max-w-xs">
-					<input
-						type="text"
-						bind:value={searchTerm}
-						placeholder="Cerca prodotti..."
-						class="w-full rounded-full border border-slate-700 bg-slate-800 py-2 pl-10 pr-4 text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
-					/>
-					<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-						<svg class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
-							<path
-								fill-rule="evenodd"
-								d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-					</div>
-				</form>
 			</div>
 
-			<div class="flex items-center space-x-4">
-				<div class="relative" use:clickOutside>
-					{#if $isCartOpenMobile}
-						<CartMenu />
-					{/if}
+			<div class="hidden flex-grow items-center justify-center md:flex">
+				<div
+					class="relative w-full max-w-md"
+					on:focusin={() => (isSearchFocused = true)}
+					on:focusout={() => setTimeout(() => (isSearchFocused = false), 200)}
+				>
+					<form on:submit|preventDefault={handleSearchSubmit}>
+						<input
+							type="text"
+							bind:value={searchTerm}
+							on:input={onSearchInput}
+							placeholder="Cerca prodotti..."
+							class="w-full rounded-full border border-slate-700 bg-slate-800 py-2 pl-10 pr-4 text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+						/>
+						<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+							<svg class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+								<path
+									fill-rule="evenodd"
+									d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+									clip-rule="evenodd"
+								/>
+							</svg>
+						</div>
+					</form>
 
+					{#if isSearchFocused && searchResults.length > 0}
+						<div
+							class="absolute top-full z-20 mt-2 w-full overflow-hidden rounded-lg bg-white shadow-lg"
+						>
+							<ul class="divide-y divide-gray-200">
+								{#each searchResults as prodotto}
+									<li class="hover:bg-gray-100">
+										<a
+											href="/prodotto/{createSlug(prodotto.nome)}"
+											class="flex items-center p-3 text-gray-800"
+										>
+											<img
+												src={prodotto.immagine_url}
+												alt={prodotto.nome}
+												class="mr-3 h-10 w-10 rounded-md object-cover"
+											/>
+											<span>{prodotto.nome}</span>
+										</a>
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				</div>
+			</div>
+
+			<div class="flex flex-shrink-0 items-center space-x-4">
+				<div class="relative" use:clickOutside>
 					<button
 						on:click={toggleCartMenu}
 						class="relative rounded-full p-2 transition-colors hover:bg-slate-800"
 						title="Carrello"
+						aria-label="Apri menù carrello"
 					>
 						<svg
 							class="h-6 w-6 text-white"
@@ -196,7 +245,7 @@
 						{/if}
 					</button>
 
-					{#if isCartOpen}
+					{#if $isCartOpenMobile}
 						<CartMenu />
 					{/if}
 				</div>
@@ -204,6 +253,7 @@
 					href="/utente"
 					class="rounded-full p-2 transition-colors hover:bg-slate-800"
 					title="Profilo Utente"
+					aria-label="Profilo utente"
 				>
 					<svg class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
 						<path

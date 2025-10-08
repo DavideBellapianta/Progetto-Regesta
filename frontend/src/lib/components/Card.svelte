@@ -1,19 +1,12 @@
 <script>
 	import { cart, favorites } from '../stores.js';
+	import { createSlug } from '$lib/utils.js';
 
 	import cuore from '$lib/assets/heart_pieno.png';
 	import cuore_vuoto from '$lib/assets/heart_vuoto.png';
+	import cuore_rosso from '$lib/assets/heart_pieno_rosso.png';
 
 	export let prodotto;
-
-	function createSlug(name) {
-		return name
-			.toLowerCase() // 1. Minuscolo
-			.replace(/\s+/g, '-') // 2. Spazi -> trattini
-			.replace(/[()]/g, '') // 3. Rimuove parentesi
-			.replace(/[^\w-]+/g, ''); // 4. Rimuove altri caratteri
-	}
-
 	// Funzioni per interagire con gli store
 	function addToCart() {
 		cart.add(prodotto);
@@ -30,7 +23,10 @@
 
 <a
 	href="/prodotto/{createSlug(prodotto.nome)}"
-	class="group block overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+	class="card-theme hover:shadow-accent/30 group block overflow-hidden rounded-lg
+           shadow-md transition-all
+           duration-300 hover:-translate-y-1
+           hover:scale-[1.02] hover:shadow-[0_10px_25px_-5px_var(--accent)]"
 >
 	<div class="relative h-48 overflow-hidden">
 		<img
@@ -45,7 +41,7 @@
 			aria-label="Aggiungi ai preferiti"
 		>
 			{#if isFavorite}
-				<img src={cuore} alt="Rimuovi dai preferiti" class="h-6 w-6" />
+				<img src={cuore_rosso} alt="Rimuovi dai preferiti" class="h-6 w-6" />
 			{:else}
 				<img src={cuore_vuoto} alt="Aggiungi ai preferiti" class="h-6 w-6" />
 			{/if}
@@ -60,7 +56,7 @@
 
 		<button
 			on:click|stopPropagation|preventDefault={addToCart}
-			class="mt-4 w-full rounded-lg bg-indigo-600 py-2 font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+			class="card-buttonTheme mt-4 w-full rounded-lg bg-gradient-to-r from-purple-400 to-indigo-700 py-2 font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 		>
 			Aggiungi al carrello
 		</button>
