@@ -1,6 +1,8 @@
 <script>
+	import { onMount } from 'svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import SnakeGame from '$lib/components/SnakeGame.svelte';
+	import { utente } from '$lib/stores.js'; // Assicurati di importare lo store utente
 	import '../app.css';
 
 	// Importiamo tutti e tre i blob
@@ -19,6 +21,9 @@
 			showSnake = !showSnake;
 		}
 	}
+	onMount(() => {
+		utente.checkAuth();
+	});
 </script>
 
 <svelte:window on:keydown={handleSecretCode} />
@@ -32,19 +37,19 @@
 		<img
 			src={blob1}
 			alt=""
-			class="animate-blob animation-delay-2000 absolute -right-120 scale-120 -top-80 h-[60rem] w-[80rem] text-indigo-500 opacity-100"
+			class="animate-blob animation-delay-2000 -right-120 scale-120 absolute -top-80 h-[60rem] w-[80rem] text-indigo-500 opacity-100"
 		/>
 
 		<img
 			src={blob2}
 			alt=""
-			class="animate-blob animation-delay-4000 absolute -left-90 -top-50 h-[55rem] w-[55rem] text-teal-400 opacity-100"
+			class="animate-blob animation-delay-4000 -left-90 -top-50 absolute h-[55rem] w-[55rem] text-teal-400 opacity-100"
 		/>
 
 		<img
 			src={blob}
 			alt=""
-			class="animate-blob absolute -bottom-1/2 left-160 h-[60rem] w-[60rem] -translate-x-1/2 text-purple-500 opacity-100"
+			class="animate-blob left-160 absolute -bottom-1/2 h-[60rem] w-[60rem] -translate-x-1/2 text-purple-500 opacity-100"
 		/>
 	</div>
 

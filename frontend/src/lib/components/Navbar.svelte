@@ -3,6 +3,8 @@
 	import { cart, cartItemsCount, isCartOpenMobile } from '../stores.js';
 	import CartMenu from './CartMenu.svelte';
 	import { createSlug } from '$lib/utils.js'; // Importa da un file di utility
+	import { page } from '$app/stores'; // Importa lo store 'page' per l'URL corrente
+	import { utente } from '../stores.js';
 
 	// --- 1. COSTANTI DI CONFIGURAZIONE ---
 	// Raggruppiamo i valori "magici" in costanti per una facile modifica
@@ -18,6 +20,15 @@
 	let searchResults = [];
 	let debounceTimer;
 	let isSearchFocused = false;
+	let isUserMenuOpen = false; // Stato per il menù utente
+
+	// --- FUNZIONI ---
+	function toggleCartMenu() {
+		isCartOpenMobile.update((isOpen) => !isOpen);
+	}
+	function toggleUserMenu() {
+		isUserMenuOpen = !isUserMenuOpen;
+	}
 
 	// --- 3. AZIONI SVELTE (Best Practice) ---
 	// 'clickOutside' è ora una "Action", un modo riutilizzabile per aggiungere funzionalità a un elemento
@@ -34,11 +45,21 @@
 			}
 		};
 	}
+	function clickOutsideUser(node) {
+		const handleClick = (event) => {
+			if (node && !node.contains(event.target) && !event.defaultPrevented) {
+				isUserMenuOpen = false;
+			}
+		};
+		document.addEventListener('click', handleClick, true);
+		return {
+			destroy() {
+				document.removeEventListener('click', handleClick, true);
+			}
+		};
+	}
 
 	// --- 4. FUNZIONI DI GESTIONE EVENTI ---
-	function toggleCartMenu() {
-		isCartOpenMobile.update((isOpen) => !isOpen);
-	}
 
 	function handleSearchSubmit() {
 		if (searchTerm.trim() !== '') {
@@ -55,10 +76,12 @@
 		}
 		debounceTimer = setTimeout(async () => {
 			try {
-				const response = await fetch(`${API_BASE_URL}/api/cerca?q=${encodeURIComponent(searchTerm)}`);
+				const response = await fetch(
+					`${API_BASE_URL}/api/cerca?q=${encodeURIComponent(searchTerm)}`
+				);
 				if (response.ok) searchResults = await response.json();
 			} catch (e) {
-				console.error("Errore autocompletamento ricerca:", e);
+				console.error('Errore autocompletamento ricerca:', e);
 			}
 		}, SEARCH_DEBOUNCE_MS);
 	}
@@ -70,7 +93,9 @@
 			async (position) => {
 				const { latitude, longitude } = position.coords;
 				try {
-					const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+					const response = await fetch(
+						`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+					);
 					if (response.ok) {
 						const data = await response.json();
 						const city = data.address.city || data.address.town || data.address.village;
@@ -87,7 +112,7 @@
 				isLoadingPrecise = false;
 			},
 			(error) => {
-				console.error("Errore geolocalizzazione:", error);
+				console.error('Errore geolocalizzazione:', error);
 				if (error.code === 1) alert('Hai negato il permesso alla geolocalizzazione.');
 				isLoadingPrecise = false;
 			}
@@ -249,21 +274,32 @@
 						<CartMenu />
 					{/if}
 				</div>
-				<a
-					href="/utente"
-					class="rounded-full p-2 transition-colors hover:bg-slate-800"
-					title="Profilo Utente"
-					aria-label="Profilo utente"
-				>
-					<svg class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
-						<path
-							fill-rule="evenodd"
-							d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-				</a>
+				<div class="relative" use:clickOutsideUser>
+					<button on:click={toggleUserMenu} class="rounded-full p-2 transition-colors hover:bg-slate-800" aria-label="Apri menù utente">
+						<svg class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+						</svg>
+					</button>
+
+					{#if isUserMenuOpen}
+						<div class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 text-black py-1">
+							{#if $utente}
+								<div class="px-4 py-2 text-sm text-gray-500 border-b">
+									Accesso come: <span class="font-medium text-gray-800">{$utente.email}</span>
+								</div>
+								<a href="/profilo" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Il Mio Profilo</a>
+								<button on:click={() => { utente.logout(); isUserMenuOpen = false; }} class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+									Logout
+								</button>
+							{:else}
+								<a href="/login?redirectTo={$page.url.pathname}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Accedi</a>
+								<a href="/registrazione?redirectTo={$page.url.pathname}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Registrati</a>
+							{/if}
+						</div>
+					{/if}
+				</div>
 			</div>
+
 		</div>
 	</div>
 </nav>

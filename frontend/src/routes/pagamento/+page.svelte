@@ -1,27 +1,44 @@
 <script>
 	import { cart } from '$lib/stores.js';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { utente } from '$lib/stores.js';
+	import { createSlug } from '$lib/utils.js';
 
-	// --- STATO DEL COMPONENTE ---
-	let selectedShipping = 'classico'; // Default iniziale
-	$: {
-		if (subtotal >= 100) {
-			selectedShipping = 'rapido'; // Se il subtotale è >= 100, preseleziona la spedizione rapida (che sarà gratuita)
-		} else {
-			// Se scende di nuovo sotto 100, torna a quella classica per evitare costi a sorpresa
-			if (selectedShipping === 'rapido') {
-				selectedShipping = 'classico';
+	// --- PROTEZIONE DELLA ROTTA ---
+	onMount(async () => {
+		// 1. Protezione della rotta
+		setTimeout(() => {
+			if (!$utente) {
+				goto(`/login?redirectTo=/pagamento`);
+			}
+		}, 150);
+
+		// 2. Pre-compilazione del form con i dati del profilo
+		const token = localStorage.getItem('jwt_token');
+		if (token) {
+			try {
+				const profileRes = await fetch('http://127.0.0.1:5000/api/profilo', {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+
+				if (profileRes.ok) {
+					const userProfile = await profileRes.json();
+					formData.email = userProfile.email || '';
+					formData.telefono = userProfile.telefono || '';
+					formData.nomeCompleto = `${userProfile.nome || ''} ${userProfile.cognome || ''}`.trim();
+					formData.indirizzo = userProfile.indirizzo || '';
+					formData.citta = userProfile.citta || '';
+					formData.cap = userProfile.cap || '';
+				}
+			} catch (e) {
+				console.error('Impossibile pre-caricare i dati del profilo:', e);
 			}
 		}
-	}
-	function createSlug(name) {
-		return name
-			.toLowerCase()
-			.replace(/\s+/g, '-')
-			.replace(/[()]/g, '')
-			.replace(/[^\w-]+/g, '');
-	}
+	});
 
-	// Dati del form, raccolti in un unico oggetto
+	// --- STATO DEL COMPONENTE ---
+	let selectedShipping = 'classico';
 	let formData = {
 		email: '',
 		telefono: '',
@@ -29,45 +46,65 @@
 		indirizzo: '',
 		citta: '',
 		cap: '',
-		paese: 'Italia',
 		numeroCarta: '',
 		scadenzaCarta: '',
 		cvc: '',
 		orderNotes: ''
 	};
 
-	// --- LOGICA REATTIVA PER I CALCOLI ---
-	// $: -> Queste variabili si ricalcolano automaticamente quando le loro dipendenze cambiano
+	let scontrino = null;
 
-	// Calcola il subtotale ogni volta che il carrello ($cart) cambia
+	// --- LOGICA REATTIVA PER I CALCOLI ---
 	$: subtotal = $cart.reduce((sum, item) => sum + item.prezzo_lordo * item.quantita, 0);
 
-	// Calcola il costo di spedizione ogni volta che 'selectedShipping' o 'subtotal' cambiano
 	$: shippingCost = (() => {
-		if (selectedShipping === 'rapido' && subtotal < 100) {
-			return 10.0;
-		}
-		return 0.0; // Spedizione classica o rapida per ordini > 100€ è gratis
+		if (selectedShipping === 'rapido' && subtotal < 100) return 10.0;
+		return 0.0;
+	})();
+	$: total = subtotal + shippingCost;
+
+	$: shippingCost = (() => {
+		if (selectedShipping === 'rapido' && subtotal < 100) return 10.0;
+		return 0.0;
 	})();
 
-	// Calcola il totale finale ogni volta che 'subtotal' o 'shippingCost' cambiano
 	$: total = subtotal + shippingCost;
 
 	// Funzione per simulare l'invio del pagamento
-	function handlePayment() {
-		// In un'applicazione reale, qui invieresti 'formData' e '$cart' al tuo backend
-		// per l'elaborazione del pagamento con un servizio come Stripe o PayPal.
-		console.log('Dati ordine inviati:', {
-			datiCliente: formData,
-			ordine: $cart,
-			costi: {
-				subtotal: subtotal.toFixed(2),
-				shipping: shippingCost.toFixed(2),
-				total: total.toFixed(2)
-			}
-		});
+	async function handlePayment() {
+		const token = localStorage.getItem('jwt_token');
+		if (!token) {
+			goto('/login?redirectTo=/pagamento');
+			return;
+		}
+		try {
+			// Chiamiamo prima lo scontrino per avere i totali finali
+			const scontrinoRes = await fetch('http://127.0.0.1:5000/api/scontrino', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+				body: JSON.stringify($cart)
+			});
+			if (!scontrinoRes.ok) throw new Error('Errore calcolo scontrino');
+			const finalScontrino = await scontrinoRes.json();
 
-		alert(`Pagamento di ${total.toFixed(2)}€ inviato con successo! (Simulazione)`);
+			const response = await fetch('http://127.0.0.1:5000/api/checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+				body: JSON.stringify({
+					cart: $cart,
+					totals: finalScontrino, // Usiamo i totali ufficiali
+					shippingInfo: formData
+				})
+			});
+			if (response.ok) {
+				cart.reset();
+				goto('/profilo');
+			} else {
+				throw new Error('Errore durante il pagamento.');
+			}
+		} catch (e) {
+			alert(e.message);
+		}
 	}
 </script>
 

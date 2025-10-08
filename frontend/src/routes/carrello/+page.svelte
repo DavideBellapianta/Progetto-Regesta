@@ -1,6 +1,19 @@
 <script>
 	import { onMount } from 'svelte';
 	import { cart, favorites } from '$lib/stores.js';
+    import { goto } from '$app/navigation';
+    import { utente } from '$lib/stores.js';
+
+    onMount(() => {
+        // Usa 'setTimeout' per dare allo store 'utente' il tempo di caricarsi
+        setTimeout(() => {
+            // Se lo store '$utente' è nullo (utente non loggato)
+            if (!$utente) {
+                // Reindirizza alla pagina di login, ricordando da dove veniamo
+                goto(`/login?redirectTo=/carrello`);
+            }
+        }, 100);
+    });
 
 	let scontrino = null;
 	let error = null;
