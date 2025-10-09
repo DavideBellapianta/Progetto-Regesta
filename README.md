@@ -1,4 +1,4 @@
-# 🏪 POS REGISTER REGESTA
+# 🛒 POS REGISTER REGESTA
 <div align="center">
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)]()
@@ -36,7 +36,7 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - 📋 **Dettaglio prodotto** con specifiche complete e recensioni
 - ⭐ **Sistema preferiti** per salvare prodotti preferiti
 
-### 🛒 **Carrello e Acquisti**
+### 💸 **Carrello e Acquisti**
 - 🎯 **Carrello dinamico** con modifica quantità in tempo reale
 - ➕➖ **Aggiunta/rimozione** prodotti dal carrello
 - ❤️ **Gestione preferiti** direttamente dal carrello
@@ -56,6 +56,7 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - **Backend:** Python
 - **Database:** MongoDB
 - **Authentication:** JWT
+
 
 
 
