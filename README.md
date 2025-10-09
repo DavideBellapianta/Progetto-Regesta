@@ -1,8 +1,6 @@
 # 🏪 POS REGISTER REGESTA
 <div align="center">
 
-![Banner](frontend/src/lib/assets/screenshot1.png)
-
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)]()
 [![Python](https://img.shields.io/badge/python-3.8+-blue)]()
 [![MongoDB](https://img.shields.io/badge/MongoDB-4.4+-green)]()
@@ -58,5 +56,6 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - **Backend:** Python
 - **Database:** MongoDB
 - **Authentication:** JWT
+
 
 
