@@ -1,41 +1,41 @@
-**POS REGISTER REGESTA**
+# 🏪 POS REGISTER REGESTA
 
-*Funzionalità del programma:*
+> **Sistema di E-Commerce Completo con Gestione POS**
 
-**Autenticazione**
+Un'applicazione web moderna per la gestione di vendite online con funzionalità complete di catalogo, carrello e sistema di pagamento.
 
-Registrazione tramite email e password
+---
 
-Login per utenti registrati
+## 🚀 Funzionalità
 
-Aggiornamento profilo (Nome, cognome, telefono, indirizzo, cap e paese)
+### 🔐 **Autenticazione**
+- 📧 **Registrazione** tramite email e password
+- 🔑 **Login** per utenti registrati
+- 👤 **Aggiornamento profilo** (Nome, cognome, telefono, indirizzo, CAP e paese)
 
-**Catalogo Prodotti**
+### 🛍️ **Catalogo Prodotti**
+- 🏠 **Homepage** con prodotti organizzati per categorie
+- 🔍 **Ricerca avanzata** per nome, costo o categoria
+- 📋 **Dettaglio prodotto** con specifiche complete e recensioni
+- ⭐ **Sistema preferiti** per salvare prodotti preferiti
 
-Homepage con prodotti organizzati per categorie
+### 🛒 **Carrello e Acquisti**
+- 🎯 **Carrello dinamico** con modifica quantità in tempo reale
+- ➕➖ **Aggiunta/rimozione** prodotti dal carrello
+- ❤️ **Gestione preferiti** direttamente dal carrello
+- ✅ **Checkout sicuro** con inserimento dati di pagamento
+- 📊 **Riepilogo ordine** prima del completamento
 
-Ricerca prodotti per nome, costo o categoria
+### 🧾 **Pagamenti e Scontrino**
+- 📄 **Profilo utente** con storico ordini completo
+- 🖨️ **Stampa scontrini** per acquisti effettuati
+- ⚙️ **Gestione dati personali** e preferenze
 
-Dettaglio prodotto con specifiche complete e recensioni
+---
 
-*Aggiungere i prodotti tra i preferiti*
+## 🛠️ Tecnologie
 
-**Carrello e Acquisti**
-
-Carrello dinamico con modifica quantità
-
-Aggiunta/rimozione prodotti dal carrello
-
-Gestione preferiti direttamente dal carrello
-
-Checkout con inserimento dati di pagamento
-
-Riepilogo ordine prima del completamento
-
-**Pagamenti e scontrino**
-
-Profilo utente con storico ordini
-
-Stampa scontrini per acquisti effettuati
-
-Gestione dati personali e preferenze
+- **Frontend:** HTML5, CSS3, JavaScript
+- **Backend:** Python
+- **Database:** MongoDB
+- **Authentication:** JWT
