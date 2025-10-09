@@ -28,7 +28,7 @@
            duration-300 hover:-translate-y-1
            hover:scale-[1.02] hover:shadow-[0_10px_25px_-5px_var(--accent)]"
 >
-	<div class="relative h-48 overflow-hidden">
+	<div class="relative h-64 overflow-hidden">
 		<img
 			src={prodotto.immagine_url}
 			alt={prodotto.nome}
@@ -53,16 +53,16 @@
 			{prodotto.nome}
 		</h3>
 		<p class="mt-1 text-xl font-bold text-gray-600">{prodotto.prezzo_lordo.toFixed(2)}€</p>
-		<button
-			on:click|stopPropagation|preventDefault={addToCart}
-			class="card-buttonTheme mt-4 w-full rounded-lg
-           bg-gradient-to-r from-cyan-700 via-blue-500 to-indigo-600
-           py-2 font-semibold text-white
+<button
+    on:click|stopPropagation|preventDefault={addToCart}
+    class="card-buttonTheme mt-4 w-full rounded-lg 
+           bg-gradient-to-r from-cyan-700 via-blue-500 to-indigo-600 
+           py-2 font-semibold text-white 
            transition-all duration-200 ease-in-out
-           hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/50
+           hover:shadow-lg hover:shadow-indigo-500/50 hover:-translate-y-0.5
            active:scale-95 active:bg-gradient-to-br"
-		>
-			Aggiungi al carrello
-		</button>
+>
+    Aggiungi al carrello
+</button>
 	</div>
 </a>

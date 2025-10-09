@@ -1,4 +1,3 @@
-# seed_db.py (versione manuale)
 import os
 import urllib.parse
 from pymongo import MongoClient
@@ -8,19 +7,15 @@ load_dotenv()
 username = os.getenv("MONGO_USER")
 password = os.getenv("MONGO_PASS")
 
-# Connessione al DB
 encoded_password = urllib.parse.quote_plus(password)
 uri = f"mongodb+srv://{username}:{encoded_password}@progetto1.baefqmn.mongodb.net/?retryWrites=true&w=majority&appName=Progetto1"
 client = MongoClient(uri)
 db = client['databaseProdotti']
 collection = db['prodotti']
 
-# Pulisce la collezione per evitare duplicati
 collection.delete_many({})
 
-# Lista dei prodotti con URL delle immagini inseriti a mano
 prodotti_da_inserire = [
-    # Categoria Food
     { 
         "nome": "Tavoletta di cioccolato fondente 85%", 
         "prezzo_lordo": 2.49, 
@@ -57,7 +52,6 @@ prodotti_da_inserire = [
         "descrizione": "Spaghettoni di semola di grano duro, dalla consistenza corposa e ruvida che cattura ogni tipo di sugo. Tempo di cottura: 11 minuti. 100% grano italiano."
     },
 
-    # Categoria Medical
     { 
         "nome": "Confezione di Cerotti Assortiti (40 pz)", 
         "prezzo_lordo": 3.99, 
@@ -87,7 +81,6 @@ prodotti_da_inserire = [
         "descrizione": "Confezione da 10 mascherine chirurgiche monouso a 3 veli. Elevata efficienza di filtrazione batterica (BFE ≥ 98%) e ottima respirabilità. Dispositivo Medico di Classe I."
     },
 
-    # Categoria Other
     { 
         "nome": "Mazzo di Carte da Gioco Francesi", 
         "prezzo_lordo": 2.90, 
@@ -115,13 +108,141 @@ prodotti_da_inserire = [
         "categoria": "other", 
         "immagine_url": "https://images.unsplash.com/photo-1704895336143-334cc3bccfc6?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         "descrizione": "Pacco da 4 batterie alcaline tipo AAA a lunga durata. Ideali per telecomandi, giocattoli e piccoli dispositivi elettronici. Affidabilità garantita."
+    },
+    { 
+        "nome": "Cuffie Bluetooth con Cancellazione del Rumore", 
+        "prezzo_lordo": 79.99, 
+        "categoria": "elettronica", 
+        "immagine_url": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/airpods-pro-3-hero-select-202509_FMT_WHH?wid=752&hei=636&fmt=jpeg&qlt=90&.v=1758077264181",
+        "descrizione": "Immergiti nella tua musica preferita con queste cuffie wireless. Tecnologia di cancellazione attiva del rumore (ANC) e fino a 30 ore di autonomia."
+    },
+    { 
+        "nome": "Mouse Wireless Ergonomico", 
+        "prezzo_lordo": 99.90, 
+        "categoria": "elettronica", 
+        "immagine_url": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/mice/mx-vertical/gallery/mx-vertical-gallery-04.png",
+        "descrizione": "Mouse senza fili progettato per il massimo comfort. Sensore ottico di precisione e rotellina di scorrimento silenziosa. Compatibile con Windows e macOS."
+    },
+    { 
+        "nome": "Tastiera Meccanica Retroilluminata RGB", 
+        "prezzo_lordo": 65.50, 
+        "categoria": "elettronica", 
+        "immagine_url": "https://coffeekeys.eu/cdn/shop/files/DSC03210_b99ccbeb-2243-45a9-bb2b-e5ccf86bbda2.webp?v=1750089673&width=1800",
+        "descrizione": "Tastiera da gaming con switch meccanici per una risposta tattile superiore. Retroilluminazione RGB personalizzabile e layout italiano."
+    },
+
+    # Categoria Casa
+    { 
+        "nome": "Set di 3 Asciugamani in Cotone Egiziano", 
+        "prezzo_lordo": 29.99, 
+        "categoria": "casa", 
+        "immagine_url": "https://www.lisolastore.it/cdn/shop/products/coppia-di-spugna-in-cotone-egiziano-egoist-coppia-di-spugna-graccioza-877133.jpg?crop=center&height=3847&v=1648826873&width=3847",
+        "descrizione": "Morbido set di tre asciugamani (viso, ospite, telo doccia) in puro cotone egiziano. Massima assorbenza e comfort sulla pelle."
+    },
+    { 
+        "nome": "Flacone Detersivo per Piatti (1L)", 
+        "prezzo_lordo": 1.89, 
+        "categoria": "casa", 
+        "immagine_url": "https://content.dambros.it/uploads/2023/03/20093818/0000217782.png",
+        "descrizione": "Detersivo liquido concentrato per la pulizia di piatti e stoviglie. Formula sgrassante efficace anche in acqua fredda. Profumazione al limone."
+    },
+{ 
+        "nome": "Apple Watch Ultra 2", 
+        "prezzo_lordo":729.99, 
+        "categoria": "elettronica", 
+        "immagine_url": "https://static.comet.it/b2c/public/e-cat/APL03770Z/APL03770Z-ab74f87efd-0.jpg",
+        "descrizione": "Tieni traccia dei tuoi allenamenti e notifiche. Display a colori ad alta risoluzione, monitoraggio della frequenza cardiaca e GPS integrato."
+    },
+    { 
+        "nome": "Power Bank Portatile 10000mAh", 
+        "prezzo_lordo": 19.99, 
+        "categoria": "elettronica", 
+        "immagine_url": "https://m.media-amazon.com/images/I/51ff4eEtmeL._UF1000,1000_QL80_.jpg",
+        "descrizione": "Non rimanere mai senza batteria. Caricatore portatile compatto con due porte USB per ricaricare i tuoi dispositivi ovunque ti trovi."
+    },
+    { 
+        "nome": "Webcam Full HD 1080p con Microfono", 
+        "prezzo_lordo": 35.00, 
+        "categoria": "elettronica", 
+        "immagine_url": "https://m.media-amazon.com/images/I/71eGb1FcyiL._UF894,1000_QL80_.jpg",
+        "descrizione": "Perfetta per videochiamate e streaming. Risoluzione Full HD, microfono integrato con riduzione del rumore e clip universale per monitor."
+    },
+    { 
+        "nome": "Set 6 Bicchieri da Acqua in Vetro", 
+        "prezzo_lordo": 14.99, 
+        "categoria": "casa", 
+        "immagine_url": "https://media-gommalacca.r1-it.storage.cloud.it/uploads/2021/07/gw05tdisegual-bicchiere-acqua-vetro-trasparente-800x534.jpg",
+        "descrizione": "Set di sei bicchieri in vetro resistente dal design moderno ed elegante. Perfetti per l'uso quotidiano. Lavabili in lavastoviglie."
+    },
+    { 
+        "nome": "Moka Caffettiera 3 Tazze", 
+        "prezzo_lordo": 18.90, 
+        "categoria": "casa", 
+        "immagine_url": "https://m.media-amazon.com/images/I/71cQb7iaMOL.jpg",
+        "descrizione": "La caffettiera tradizionale per un caffè italiano dal gusto autentico. Realizzata in alluminio di alta qualità con manico ergonomico."
+    },
+    { 
+        "nome": "Padella Antiaderente 24cm", 
+        "prezzo_lordo": 22.50, 
+        "categoria": "casa", 
+        "immagine_url": "https://cucinosano.it/cdn/shop/files/Padella_24_Cucinosano_1.webp?v=1717592771",
+        "descrizione": "Padella con rivestimento antiaderente rinforzato per una cottura uniforme senza grassi. Adatta a tutti i piani cottura, inclusa l'induzione."
+    },
+    { 
+        "nome": "Pellicola Trasparente per Alimenti (30m)", 
+        "prezzo_lordo": 1.20, 
+        "categoria": "casa", 
+        "immagine_url": "https://www.cicalia.com/it/img/imgproducts/46752/l_46752.jpg",
+        "descrizione": "Pellicola per alimenti extra resistente per conservare la freschezza dei tuoi cibi. Pratico sistema di taglio per un utilizzo facile e veloce."
+    },
+    { 
+        "nome": "Yogurt Greco Bianco 0% Grassi (170g)", 
+        "prezzo_lordo": 1.19, 
+        "categoria": "food", 
+        "immagine_url": "https://www.carrefour.it/on/demandware.static/-/Sites-carrefour-master-catalog-IT/default/dw9adf1027/large/FAGETOTAL0450GR-5201054017616-1.png",
+        "descrizione": "Yogurt greco colato, denso e cremoso, senza grassi. Ricco di proteine, perfetto per una colazione sana o uno spuntino leggero."
+    },
+    { 
+        "nome": "Confezione di Uova Fresche Biologiche (6 pz)", 
+        "prezzo_lordo": 3.20, 
+        "categoria": "food", 
+        "immagine_url": "https://www.aiafood.com/_next/image/?url=https%3A%2F%2Fbackoffice.aiafood.com%2Fuploads%2Fxxl_B5172_6_uova_bio_703030780d.webp&w=1920&q=80",
+        "descrizione": "Uova fresche da galline allevate all'aperto con metodo biologico. Ideali per ogni preparazione, dalla colazione alla pasticceria."
+    },
+    { 
+        "nome": "Succo di Arancia 100% Frutta (1L)", 
+        "prezzo_lordo": 1.89, 
+        "categoria": "food", 
+        "immagine_url": "https://www.tigros.it/photo2/2022/11/04/0/main/large/pim-00000005410188019162-main-20221103-200326.jpg",
+        "descrizione": "Spremuta di arance 100% frutta senza zuccheri aggiunti. Una fonte naturale di Vitamina C per iniziare la giornata con energia."
+    },
+    { 
+        "nome": "Caffè Macinato Qualità Oro (250g)", 
+        "prezzo_lordo": 4.50, 
+        "categoria": "food", 
+        "immagine_url": "https://caffecorsini.com/cdn/shop/files/DCC189_shop.jpg?v=1714378657&width=2048",
+        "descrizione": "Pregiata miscela di caffè 100% Arabica dal gusto dolce e aromatico. Macinatura ideale per moka, per un espresso a regola d'arte."
+    },
+    { 
+        "nome": "Mozzarella Fresca di Bufala (125g)", 
+        "prezzo_lordo": 2.80, 
+        "categoria": "food", 
+        "immagine_url": "https://www.galbani.ch/wp-content/uploads/2018/04/01-3D-Mozzarella-di-Bufala-DOP-frontal-view_2025-1.png",
+        "descrizione": "Autentica mozzarella di bufala campana DOP. Sapore ricco e consistenza morbida, perfetta da gustare da sola o in una caprese."
+    },
+    { 
+        "nome": "Olio Extra Vergine di Oliva (750ml)", 
+        "prezzo_lordo": 8.99, 
+        "categoria": "food", 
+        "immagine_url": "https://static.planeat.eco/media/planeat_it_mi/item_pics/olio-extra-vergine-di-oliva-600x400.jpg",
+        "descrizione": "Olio EVO estratto a freddo da olive 100% italiane. Gusto fruttato ed equilibrato, ideale per condire a crudo insalate, verdure e bruschette."
     }
 ]
 collection.create_index([('nome', 'text')])
 
-
-# Inserisce tutti i prodotti
 collection.insert_many(prodotti_da_inserire)
 
 print(f"Database popolato con {len(prodotti_da_inserire)} prodotti (link manuali).")
 client.close()
+
+

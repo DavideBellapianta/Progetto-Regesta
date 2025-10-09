@@ -9,6 +9,7 @@
 	import blob from '$lib/assets/blob.svg';
 	import blob1 from '$lib/assets/blob (1).svg';
 	import blob2 from '$lib/assets/blob (2).svg';
+	import svg_icon from '$lib/assets/svg_icon.svg';
 
 	let showSnake = false;
 	const secretCode = ['s', 'n', 'a', 'k', 'e'];
@@ -27,6 +28,11 @@
 </script>
 
 <svelte:window on:keydown={handleSecretCode} />
+
+<svelte:head>
+	<title>POS Register - Il Tuo Negozio Online</title>
+	<link rel="icon" href={svg_icon} />
+</svelte:head>
 
 {#if showSnake}
 	<SnakeGame />

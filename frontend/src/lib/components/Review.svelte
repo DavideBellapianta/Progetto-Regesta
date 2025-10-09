@@ -1,12 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
 
-	// 1. Il componente ora accetta la categoria del prodotto corrente
-	export let category = 'other'; // 'other' come valore di default
+	export let category = 'other';
 
-	// 2. Una lista di recensioni molto più grande e categorizzata
+
 	const allReviews = [
-		// --- Categoria Food ---
+
 		{ category: 'food', author: 'Carla G.', rating: 5, text: 'Gusto eccezionale, si sente la qualità degli ingredienti. Ricomprerò sicuramente.' },
 		{ category: 'food', author: 'Davide M.', rating: 4, text: 'Molto buono e fresco. La confezione era pratica e ben sigillata.' },
 		{ category: 'food', author: 'Simone F.', rating: 3, text: 'Non male, ma il sapore è un po’ anonimo rispetto ad altre marche.' },
@@ -28,14 +27,11 @@
 	let reviewsToShow = [];
 
 	onMount(() => {
-		// 3. Filtra le recensioni in base alla categoria ricevuta
 		const relevantReviews = allReviews.filter(review => review.category === category);
 
-		// Mescola l'array filtrato
-		const shuffled = relevantReviews.sort(() => 0.5 - Math.random());
+        const shuffled = relevantReviews.sort(() => 0.5 - Math.random());
 		
-        // Seleziona un massimo di 3 recensioni da mostrare
-		reviewsToShow = shuffled.slice(0, 3);
+        reviewsToShow = shuffled.slice(0, 3);
 	});
 </script>
 
