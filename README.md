@@ -16,10 +16,10 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 <div align="center">
 
 ### Homepage - Catalogo Prodotti
-![Homepage](frontend/src/lib/assets/screenshot1.png)
+![Homepage](frontend/src/lib/assets/Screenshot1.png)
 
 ### Carrello e Checkout
-![Cart](frontend/src/lib/assets/screenshot2.png)
+![Cart](frontend/src/lib/assets/Screenshot2.png)
 
 </div>
 
@@ -58,4 +58,5 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - **Backend:** Python
 - **Database:** MongoDB
 - **Authentication:** JWT
+
 
