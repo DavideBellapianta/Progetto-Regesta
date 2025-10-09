@@ -13,9 +13,7 @@
 	let maxPrice = '';
 	let allCategories = [];
 
-	// --- onMount ORA FA MENO COSE ---
 	onMount(async () => {
-		// Al primo caricamento, carica solo le categorie
 		try {
 			const catResponse = await fetch('http://127.0.0.1:5000/api/categorie');
 			if (catResponse.ok) allCategories = await catResponse.json();
@@ -24,8 +22,6 @@
 		}
 	});
 
-	// --- NUOVO BLOCCO REATTIVO PER LA RICERCA ---
-	// Questo blocco si riesegue AUTOMATICAMENTE ogni volta che l'URL cambia
 	$: if ($page.url.searchParams) {
 		const params = $page.url.searchParams;
 		searchTerm = params.get('q') || '';
@@ -62,7 +58,6 @@
 			prezzo_min: minPrice,
 			prezzo_max: maxPrice
 		});
-		// goto ora serve solo a cambiare l'URL, la logica reattiva farà il resto
 		goto(`/cerca?${params.toString()}`);
 	}
 </script>

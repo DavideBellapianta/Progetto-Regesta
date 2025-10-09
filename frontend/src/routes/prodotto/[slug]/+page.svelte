@@ -3,18 +3,16 @@
 	import { page } from '$app/stores';
 	import { cart, favorites } from '$lib/stores.js';
 	import Navbar from '$lib/components/Navbar.svelte';
-	import Review from '$lib/components/Review.svelte'; // <-- 1. Importa il nuovo componente
+	import Review from '$lib/components/Review.svelte'; 
 
 	let prodotto = null;
 	let error = null;
 	let isFavorite = false;
 
 	onMount(async () => {
-		// --- LOGICA SEMPLIFICATA E CORRETTA ---
-		const slug = $page.params.slug; // Prende lo slug pulito dall'URL
+		const slug = $page.params.slug;
 
 		try {
-			// Lo usa direttamente per chiamare l'API
 			const response = await fetch(`http://127.0.0.1:5000/api/prodotto/${slug}`);
 			if (response.ok) {
 				prodotto = await response.json();

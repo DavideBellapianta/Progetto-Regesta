@@ -3,7 +3,6 @@
 	import { page } from '$app/stores';
 	import Navbar from '$lib/components/Navbar.svelte';
 
-	// 1. Aggiunte le variabili per nome e cognome
 	let email = '';
 	let password = '';
 	let nome = '';

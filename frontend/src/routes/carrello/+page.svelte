@@ -5,11 +5,8 @@
     import { utente } from '$lib/stores.js';
 
     onMount(() => {
-        // Usa 'setTimeout' per dare allo store 'utente' il tempo di caricarsi
         setTimeout(() => {
-            // Se lo store '$utente' è nullo (utente non loggato)
             if (!$utente) {
-                // Reindirizza alla pagina di login, ricordando da dove veniamo
                 goto(`/login?redirectTo=/carrello`);
             }
         }, 100);
@@ -22,7 +19,6 @@
 
 	let debounceTimer;
 
-	// Blocco reattivo che ricalcola lo scontrino ogni volta che il carrello cambia
 	$: if ($cart) {
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
@@ -46,8 +42,6 @@
 			}
 		}, 200);
 	}
-
-	// Caricamento dei dati per i preferiti (solo una volta)
 	onMount(async () => {
 		try {
 			const res = await fetch('http://127.0.0.1:5000/prodotti');

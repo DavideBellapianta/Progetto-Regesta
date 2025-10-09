@@ -11,30 +11,22 @@
 	let successMsg = '';
 	let isLoading = true;
 
-	// This function runs when the component is first added to the page
 	onMount(() => {
-		// Subscribe to the user store to react to authentication changes
 		const unsubscribe = utente.subscribe((currentUser) => {
-			// currentUser is 'undefined' at first, then becomes 'null' or a user object
-			// We wait for the checkAuth() in the layout to finish
 			if (currentUser === undefined) {
-				return; // Still checking...
+				return; 
 			}
 
 			if (currentUser) {
-				// If the user is successfully authenticated, load their data
 				loadPageData();
 			} else {
-				// If checkAuth() fails or the user logs out, redirect to the login page
 				goto(`/login?redirectTo=/profilo`);
 			}
 		});
 
-		// Clean up the subscription when the component is removed
 		return () => unsubscribe();
 	});
 
-	// Function to fetch all necessary data for the profile page
 	async function loadPageData() {
 		isLoading = true;
 		const token = localStorage.getItem('jwt_token');
@@ -45,7 +37,6 @@
 		}
 
 		try {
-			// Fetch profile data and order history in parallel for speed
 			const [profileRes, ordersRes] = await Promise.all([
 				fetch('http://127.0.0.1:5000/api/profilo', { headers: { Authorization: `Bearer ${token}` } }),
 				fetch('http://127.0.0.1:5000/api/ordini', { headers: { Authorization: `Bearer ${token}` } })
@@ -69,7 +60,6 @@
 		}
 	}
 
-	// Function to handle the form submission for updating the profile
 	async function handleUpdateProfile() {
 		successMsg = '';
 		error = null;
@@ -85,7 +75,7 @@
 
 			if (response.ok) {
 				successMsg = 'Profilo aggiornato con successo!';
-				setTimeout(() => (successMsg = ''), 3000); // Hide success message after 3 seconds
+				setTimeout(() => (successMsg = ''), 3000); 
 			} else {
 				const data = await response.json();
 				throw new Error(data.msg || "Errore durante l'aggiornamento.");
@@ -94,8 +84,6 @@
 			error = e.message;
 		}
 	}
-
-	// Function to download the receipt for a specific order
 	async function handleDownloadReceipt(orderId) {
 		const token = localStorage.getItem('jwt_token');
 		if (!token) {
@@ -111,7 +99,7 @@
 				const receiptHtml = await response.text();
 				const blob = new Blob([receiptHtml], { type: 'text/html' });
 				const url = URL.createObjectURL(blob);
-				window.open(url, '_blank'); // Opens the generated HTML receipt in a new tab
+				window.open(url, '_blank'); 
 			} else {
 				throw new Error('Impossibile scaricare lo scontrino.');
 			}

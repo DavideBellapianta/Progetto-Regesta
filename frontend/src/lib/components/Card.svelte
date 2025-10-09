@@ -7,7 +7,7 @@
 	import cuore_rosso from '$lib/assets/heart_pieno_rosso.png';
 
 	export let prodotto;
-	// Funzioni per interagire con gli store
+
 	function addToCart() {
 		cart.add(prodotto);
 	}
@@ -16,7 +16,6 @@
 		favorites.toggle(prodotto);
 	}
 
-	// Variabile reattiva per lo stato dei preferiti
 	let isFavorite = false;
 	$: isFavorite = $favorites.has(prodotto.nome);
 </script>

@@ -4,16 +4,13 @@
 @import "tailwindcss/utilities";
 @import "tailwindcss/theme";
 
-/* Definisci qui la tua palette di colori personalizzata */
 :root {
-    /* Nuova Palette */
     --text: #05111a;
     --background: oklch(96.7% 0.003 264.542);
     --primary: #349bdb;
     --secondary: #908aea;
     --accent: #858177;
 
-    /* Vecchia Palette (rinominata per chiarezza) */
     --vecchio-primario: #4C3B4D;
     --vecchio-secondario: #A53860;
     --vecchio-sfondo: #0B6E4F;
@@ -22,29 +19,20 @@
     --brand-gradient: linear-gradient(to right, var(--vecchio-primario), #a855f7);
 }
 
-/* Stili globali per l'intera applicazione */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--background);
-    /* Usa il nuovo colore di sfondo */
     color: var(--text);
-    /* Usa il nuovo colore del testo di base */
 }
 
-/* Classe personalizzata per la Navbar */
 .navbar-theme {
     background-color: #29b5fc;
-    /* Sfondo blu primario */
     color: var(--background);
-    /* Testo quasi bianco per contrasto */
 }
 
-/* Classe personalizzata per le Card dei prodotti */
 .card-theme {
     background-color: rgba(255, 255, 255, 0.307);
-    /* Puoi usare 'white' o un colore specifico */
     border: 1px solid #e5e7eb;
-    /* Aggiunge un bordo sottile */
 }
 
 .animate-blob:hover {

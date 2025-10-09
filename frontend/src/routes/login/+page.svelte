@@ -13,9 +13,7 @@
 		isLoading = true;
 		error = null;
 		try {
-			// Chiama la funzione 'login' del nostro store
 			await utente.login(email, password);
-			// Legge l'URL a cui reindirizzare (o va alla home)
 			const redirectTo = $page.url.searchParams.get('redirectTo') || '/';
 			goto(redirectTo);
 		} catch (e) {

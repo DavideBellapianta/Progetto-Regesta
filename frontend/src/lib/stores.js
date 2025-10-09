@@ -1,4 +1,3 @@
-// src/lib/stores.js
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 
@@ -40,7 +39,6 @@ function createCart() {
                 return updatedItems;
             }),
 
-        // ===== FUNZIONE INCREMENT COMPLETATA =====
         increment: (nomeProdotto) =>
             update((items) => {
                 const itemInCart = items.find((i) => i.nome === nomeProdotto);
@@ -51,17 +49,14 @@ function createCart() {
                 return items;
             }),
 
-        // ===== FUNZIONE DECREMENT COMPLETATA =====
         decrement: (nomeProdotto) =>
             update((items) => {
                 const itemInCart = items.find((i) => i.nome === nomeProdotto);
                 if (itemInCart && itemInCart.quantita > 1) {
-                    // Se la quantità è maggiore di 1, semplicemente la decrementiamo
                     itemInCart.quantita -= 1;
                     saveCartToDB(items);
                     return items;
                 } else {
-                    // Altrimenti (se la quantità è 1), rimuoviamo l'articolo dal carrello
                     const updatedItems = items.filter((i) => i.nome !== nomeProdotto);
                     saveCartToDB(updatedItems);
                     return updatedItems;
@@ -81,12 +76,11 @@ function createUtenteStore() {
     return {
         subscribe,
         login: async (email, password) => {
-            // 1. Salva una copia del carrello locale PRIMA del login
             let localCart = [];
             const unsubscribe = cart.subscribe(value => {
                 localCart = value;
             });
-            unsubscribe(); // Annulla l'iscrizione subito dopo aver letto il valore
+            unsubscribe();
 
             const response = await fetch(`${API_BASE_URL}/api/login`, {
                 method: 'POST',
@@ -99,21 +93,17 @@ function createUtenteStore() {
                 if (browser) localStorage.setItem('jwt_token', data.access_token);
                 set({ email });
 
-                // 2. Unisci il carrello del database con quello locale
                 let cartFromDB = data.carrello || [];
 
                 localCart.forEach(localItem => {
                     const itemInDB = cartFromDB.find(dbItem => dbItem.nome === localItem.nome);
                     if (itemInDB) {
-                        // Se l'articolo esiste già, somma le quantità
                         itemInDB.quantita += localItem.quantita;
                     } else {
-                        // Altrimenti, aggiungi l'articolo locale al carrello del DB
                         cartFromDB.push(localItem);
                     }
                 });
 
-                // 3. Imposta il carrello unito come nuovo stato e salvalo
                 cart.set(cartFromDB);
 
             } else {
@@ -122,32 +112,29 @@ function createUtenteStore() {
         },
         logout: () => {
             if (browser) {
-                localStorage.removeItem('jwt_token'); // Rimuove il token dal "blocco note"
+                localStorage.removeItem('jwt_token'); 
             }
-            cart.reset(); // Svuota il carrello
-            set(null); // Imposta lo stato utente a 'non loggato'
+            cart.reset(); 
+            set(null);
         },
 
-        // --- FUNZIONE CHECKAUTH (COMPLETATA) ---
         checkAuth: async () => {
             if (!browser) return;
 
-            const token = localStorage.getItem('jwt_token'); // Controlla se c'è un token salvato
+            const token = localStorage.getItem('jwt_token');
 
             if (token) {
                 try {
-                    // Usa il token per chiedere al backend "chi sono?"
                     const response = await fetch(`${API_BASE_URL}/api/profilo`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
                     if (response.ok) {
                         const userProfile = await response.json();
-                        set({ email: userProfile.email }); // Autentica l'utente
-                        cart.set(userProfile.carrello || []); // Carica il suo carrello salvato
+                        set({ email: userProfile.email }); 
+                        cart.set(userProfile.carrello || []); 
                         favorites.set(new Set(userProfile.preferiti || []));
                     } else {
-                        // Se il token non è valido (es. scaduto), pulisci tutto
                         localStorage.removeItem('jwt_token');
                         set(null);
                     }
@@ -179,7 +166,6 @@ function createFavoritesStore() {
         const token = localStorage.getItem('jwt_token');
         if (token) {
             try {
-                // Convertiamo il Set in un Array per inviarlo come JSON
                 const itemsArray = Array.from(itemsSet);
                 await fetch(`${API_BASE_URL}/api/preferiti`, {
                     method: 'POST',
@@ -194,7 +180,7 @@ function createFavoritesStore() {
 
     return {
         subscribe,
-        set, // Esponiamo 'set' per poter caricare i dati al login
+        set, 
         toggle: (prodotto) => {
             update((items) => {
                 if (items.has(prodotto.nome)) {
@@ -202,7 +188,7 @@ function createFavoritesStore() {
                 } else {
                     items.add(prodotto.nome);
                 }
-                saveFavoritesToDB(items); // Salva le modifiche sul DB
+                saveFavoritesToDB(items); 
                 return items;
             });
         },

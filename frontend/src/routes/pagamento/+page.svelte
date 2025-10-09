@@ -5,16 +5,13 @@
 	import { utente } from '$lib/stores.js';
 	import { createSlug } from '$lib/utils.js';
 
-	// --- PROTEZIONE DELLA ROTTA ---
 	onMount(async () => {
-		// 1. Protezione della rotta
 		setTimeout(() => {
 			if (!$utente) {
 				goto(`/login?redirectTo=/pagamento`);
 			}
 		}, 150);
 
-		// 2. Pre-compilazione del form con i dati del profilo
 		const token = localStorage.getItem('jwt_token');
 		if (token) {
 			try {
@@ -37,7 +34,6 @@
 		}
 	});
 
-	// --- STATO DEL COMPONENTE ---
 	let selectedShipping = 'classico';
 	let formData = {
 		email: '',
@@ -54,7 +50,6 @@
 
 	let scontrino = null;
 
-	// --- LOGICA REATTIVA PER I CALCOLI ---
 	$: subtotal = $cart.reduce((sum, item) => sum + item.prezzo_lordo * item.quantita, 0);
 
 	$: shippingCost = (() => {
@@ -70,7 +65,6 @@
 
 	$: total = subtotal + shippingCost;
 
-	// Funzione per simulare l'invio del pagamento
 	async function handlePayment() {
 		const token = localStorage.getItem('jwt_token');
 		if (!token) {
@@ -78,7 +72,6 @@
 			return;
 		}
 		try {
-			// Chiamiamo prima lo scontrino per avere i totali finali
 			const scontrinoRes = await fetch('http://127.0.0.1:5000/api/scontrino', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -92,7 +85,7 @@
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
 				body: JSON.stringify({
 					cart: $cart,
-					totals: finalScontrino, // Usiamo i totali ufficiali
+					totals: finalScontrino, 
 					shippingInfo: formData
 				})
 			});

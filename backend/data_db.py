@@ -129,10 +129,7 @@ prodotti_da_inserire = [
         "categoria": "elettronica", 
         "immagine_url": "https://coffeekeys.eu/cdn/shop/files/DSC03210_b99ccbeb-2243-45a9-bb2b-e5ccf86bbda2.webp?v=1750089673&width=1800",
         "descrizione": "Tastiera da gaming con switch meccanici per una risposta tattile superiore. Retroilluminazione RGB personalizzabile e layout italiano."
-    },
-
-    # Categoria Casa
-    { 
+    },    { 
         "nome": "Set di 3 Asciugamani in Cotone Egiziano", 
         "prezzo_lordo": 29.99, 
         "categoria": "casa", 

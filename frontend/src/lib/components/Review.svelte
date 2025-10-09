@@ -4,25 +4,43 @@
 	export let category = 'other';
 
 
-	const allReviews = [
+const allReviews = [
 
-		{ category: 'food', author: 'Carla G.', rating: 5, text: 'Gusto eccezionale, si sente la qualità degli ingredienti. Ricomprerò sicuramente.' },
-		{ category: 'food', author: 'Davide M.', rating: 4, text: 'Molto buono e fresco. La confezione era pratica e ben sigillata.' },
-		{ category: 'food', author: 'Simone F.', rating: 3, text: 'Non male, ma il sapore è un po’ anonimo rispetto ad altre marche.' },
-        { category: 'food', author: 'Laura P.', rating: 5, text: 'Il migliore che abbia mai provato! Vale ogni centesimo speso.' },
+{ category: 'food', author: 'Carla G.', rating: 5, text: 'Gusto eccezionale, si sente la qualità degli ingredienti. Ricomprerò sicuramente.' },
+    { category: 'food', author: 'Davide M.', rating: 4, text: 'Molto buono e fresco. La confezione era pratica e ben sigillata.' },
+    { category: 'food', author: 'Simone F.', rating: 3, text: 'Non male, ma il sapore è un po’ anonimo rispetto ad altre marche.' },
+    { category: 'food', author: 'Laura P.', rating: 5, text: 'Il migliore che abbia mai provato! Vale ogni centesimo speso.' },
+    { category: 'food', author: 'Francesca L.', rating: 4, text: 'Ottimo per uno spuntino veloce e salutare. Un po\' caro, ma la qualità si paga.' },
+    { category: 'food', author: 'Marco B.', rating: 5, text: 'Sapore autentico, come fatto in casa. Tutta la famiglia lo ha apprezzato.' },
 
-		// --- Categoria Medical ---
-		{ category: 'medical', author: 'Roberto T.', rating: 5, text: 'Prodotto efficace e facile da usare. Ha risolto il mio problema in poco tempo.' },
-		{ category: 'medical', author: 'Elena S.', rating: 4, text: 'Fa quello che promette. Ottimo rapporto qualità-prezzo per un prodotto di questo tipo.' },
-		{ category: 'medical', author: 'Franco B.', rating: 2, text: 'Purtroppo su di me non ha avuto l\'effetto sperato. Molto deludente.' },
-        { category: 'medical', author: 'Marta L.', rating: 5, text: 'Indispensabile da tenere in casa per ogni evenienza. Consigliatissimo.' },
+    { category: 'medical', author: 'Roberto T.', rating: 5, text: 'Prodotto efficace e facile da usare. Ha risolto il mio problema in poco tempo.' },
+    { category: 'medical', author: 'Elena S.', rating: 4, text: 'Fa quello che promette. Ottimo rapporto qualità-prezzo per un prodotto di questo tipo.' },
+    { category: 'medical', author: 'Franco B.', rating: 2, text: 'Purtroppo su di me non ha avuto l\'effetto sperato. Molto deludente.' },
+    { category: 'medical', author: 'Marta L.', rating: 5, text: 'Indispensabile da tenere in casa per ogni evenienza. Consigliatissimo.' },
+    { category: 'medical', author: 'Giorgio V.', rating: 4, text: 'Spedizione rapida e prodotto conforme alla descrizione. Fa il suo dovere.' },
+    { category: 'medical', author: 'Paola F.', rating: 5, text: 'Mi è stato consigliato dal mio medico e devo dire che è un prodotto validissimo.' },
 
-		// --- Categoria Other ---
-		{ category: 'other', author: 'Giovanni R.', rating: 5, text: 'Materiali di ottima qualità, robusto e ben costruito. Superiore alle aspettative.' },
-		{ category: 'other', author: 'Valentina C.', rating: 3, text: 'Funziona, ma il design potrebbe essere migliorato. Un po’ ingombrante.' },
-		{ category: 'other', author: 'Alessandro D.', rating: 4, text: 'Un buon prodotto versatile, utile in molte situazioni. Soddisfatto dell\'acquisto.' },
-        { category: 'other', author: 'Chiara Z.', rating: 5, text: 'Esattamente quello che cercavo. Arrivato in un giorno, servizio impeccabile.' }
-	];
+    { category: 'other', author: 'Giovanni R.', rating: 5, text: 'Materiali di ottima qualità, robusto e ben costruito. Superiore alle aspettative.' },
+    { category: 'other', author: 'Valentina C.', rating: 3, text: 'Funziona, ma il design potrebbe essere migliorato. Un po’ ingombrante.' },
+    { category: 'other', author: 'Alessandro D.', rating: 4, text: 'Un buon prodotto versatile, utile in molte situazioni. Soddisfatto dell\'acquisto.' },
+    { category: 'other', author: 'Chiara Z.', rating: 5, text: 'Esattamente quello che cercavo. Arrivato in un giorno, servizio impeccabile.' },
+    { category: 'other', author: 'Matteo G.', rating: 4, text: 'Facile da montare e da usare. Le istruzioni erano chiare e semplici.' },
+    { category: 'other', author: 'Elisa M.', rating: 1, text: 'Si è rotto dopo due utilizzi. Qualità pessima, sconsiglio assolutamente.' },
+    
+    { category: 'elettronica', author: 'Federico P.', rating: 5, text: 'Performance incredibili, veloce e reattivo. La batteria dura tantissimo.' },
+    { category: 'elettronica', author: 'Sofia R.', rating: 4, text: 'Ottimo e buona qualità costruttiva. Il software è un po\' da migliorare.' },
+    { category: 'elettronica', author: 'Riccardo M.', rating: 5, text: 'Si connette subito e non perde mai il segnale. Un prodotto affidabile.' },
+    { category: 'elettronica', author: 'Martina F.', rating: 3, text: 'Le funzionalità sono buone, ma è più piccolo di quanto pensassi.' },
+    { category: 'elettronica', author: 'Andrea G.', rating: 5, text: 'Installazione semplicissima, ha funzionato al primo colpo. Lo adoro.' },
+    { category: 'elettronica', author: 'Beatrice D.', rating: 4, text: 'Bello esteticamente e funzionale, un ottimo acquisto per il prezzo pagato.' },
+
+    { category: 'casa', author: 'Massimo T.', rating: 5, text: 'Prodotto di grande utilità in cucina, mi ha semplificato la vita. Robusto e facile da pulire.' },
+    { category: 'casa', author: 'Silvia Z.', rating: 4, text: 'Molto carino esteticamente, si abbina perfettamente all\'arredamento del mio salotto.' },
+    { category: 'casa', author: 'Daniele G.', rating: 5, text: 'Efficace e silenzioso, esattamente come speravo. Un acquisto azzeccato.' },
+    { category: 'casa', author: 'Giada R.', rating: 2, text: 'Le dimensioni non corrispondevano a quelle indicate nella descrizione. Ho dovuto fare il reso.' },
+    { category: 'casa', author: 'Tommaso M.', rating: 4, text: 'Buon prodotto, fa il suo lavoro. Vedremo la durata nel tempo.' },
+    { category: 'casa', author: 'Nicole P.', rating: 5, text: 'Pratico, funzionale e occupa poco spazio. Esattamente quello che mi serviva.' }
+];
 
 	let reviewsToShow = [];
 

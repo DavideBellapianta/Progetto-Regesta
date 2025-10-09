@@ -44,9 +44,7 @@
 		} else {
 			snake.pop();
 		}
-        
-        // --- CORREZIONE CHIAVE: Notifica a Svelte che 'snake' è cambiato ---
-		snake = snake;
+        		snake = snake;
 	}
 
 	function handleKeydown(e) {
@@ -66,7 +64,6 @@
 		score = 0;
 		isGameOver = false;
         
-        // Aggiungiamo la riassegnazione anche qui per sicurezza
         snake = snake;
 	}
 

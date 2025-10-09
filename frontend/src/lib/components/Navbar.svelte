@@ -2,18 +2,14 @@
 	import { onMount } from 'svelte';
 	import { cart, cartItemsCount, isCartOpenMobile } from '../stores.js';
 	import CartMenu from './CartMenu.svelte';
-	import { createSlug } from '$lib/utils.js'; // Importa da un file di utility
-	import { page } from '$app/stores'; // Importa lo store 'page' per l'URL corrente
+	import { createSlug } from '$lib/utils.js'; 
+	import { page } from '$app/stores'; 
 	import { utente } from '../stores.js';
 
 
-	// --- 1. COSTANTI DI CONFIGURAZIONE ---
-	// Raggruppiamo i valori "magici" in costanti per una facile modifica
 	const API_BASE_URL = 'http://127.0.0.1:5000';
 	const SEARCH_DEBOUNCE_MS = 300;
 
-	// --- 2. STATO DEL COMPONENTE ---
-	// Le variabili che gestiscono lo stato della UI
 	let location = 'Caricamento...';
 	let locationSource = null;
 	let isLoadingPrecise = false;
@@ -21,11 +17,10 @@
 	let searchResults = [];
 	let debounceTimer;
 	let isSearchFocused = false;
-	let isUserMenuOpen = false; // Stato per il menù utente
+	let isUserMenuOpen = false; 
 	
 let isMobileSearchOpen = false;
 
-	// --- FUNZIONI ---
 	function toggleCartMenu() {
 		isCartOpenMobile.update((isOpen) => !isOpen);
 	}
@@ -33,8 +28,6 @@ let isMobileSearchOpen = false;
 		isUserMenuOpen = !isUserMenuOpen;
 	}
 
-	// --- 3. AZIONI SVELTE (Best Practice) ---
-	// 'clickOutside' è ora una "Action", un modo riutilizzabile per aggiungere funzionalità a un elemento
 	function clickOutside(node) {
 		const handleClick = (event) => {
 			if (node && !node.contains(event.target) && !event.defaultPrevented) {
@@ -62,15 +55,12 @@ let isMobileSearchOpen = false;
 		};
 	}
 
-	// --- 4. FUNZIONI DI GESTIONE EVENTI ---
-
 	function handleSearchSubmit() {
 		if (searchTerm.trim() !== '') {
 			window.location.href = `/cerca?q=${encodeURIComponent(searchTerm.trim())}`;
 		}
 	}
 
-	// --- 5. LOGICA API E ASINCRONA ---
 	async function onSearchInput() {
 		clearTimeout(debounceTimer);
 		if (searchTerm.length < 2) {
@@ -122,7 +112,6 @@ let isMobileSearchOpen = false;
 		);
 	}
 
-	// --- 6. CICLO DI VITA SVELTE ---
 	onMount(async () => {
 		try {
 			const response = await fetch(`${API_BASE_URL}/api/geo-ip`);

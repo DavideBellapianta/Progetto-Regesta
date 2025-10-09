@@ -2,10 +2,9 @@
 	import { onMount } from 'svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import SnakeGame from '$lib/components/SnakeGame.svelte';
-	import { utente } from '$lib/stores.js'; // Assicurati di importare lo store utente
+	import { utente } from '$lib/stores.js';
 	import '../app.css';
 
-	// Importiamo tutti e tre i blob
 	import blob from '$lib/assets/blob.svg';
 	import blob1 from '$lib/assets/blob (1).svg';
 	import blob2 from '$lib/assets/blob (2).svg';
