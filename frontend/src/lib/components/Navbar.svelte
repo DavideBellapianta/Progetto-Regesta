@@ -6,6 +6,7 @@
 	import { page } from '$app/stores'; // Importa lo store 'page' per l'URL corrente
 	import { utente } from '../stores.js';
 
+
 	// --- 1. COSTANTI DI CONFIGURAZIONE ---
 	// Raggruppiamo i valori "magici" in costanti per una facile modifica
 	const API_BASE_URL = 'http://127.0.0.1:5000';
@@ -21,6 +22,8 @@
 	let debounceTimer;
 	let isSearchFocused = false;
 	let isUserMenuOpen = false; // Stato per il menù utente
+	
+let isMobileSearchOpen = false;
 
 	// --- FUNZIONI ---
 	function toggleCartMenu() {
@@ -137,6 +140,7 @@
 	});
 </script>
 
+
 <nav class="navbar-theme sticky top-0 z-50 shadow-lg">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 items-center justify-between gap-8">
@@ -201,7 +205,7 @@
 							bind:value={searchTerm}
 							on:input={onSearchInput}
 							placeholder="Cerca prodotti..."
-							class="w-full rounded-full border border-slate-700 bg-slate-800 py-2 pl-10 pr-4 text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+							class="search-theme w-full rounded-full border   py-2 pl-10 pr-4 text-black transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
 						/>
 						<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
 							<svg class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
@@ -240,7 +244,13 @@
 				</div>
 			</div>
 
-			<div class="flex flex-shrink-0 items-center space-x-4">
+			<div class="flex flex-shrink-0 items-center space-x-2">
+				<button on:click={() => isMobileSearchOpen = true} class="rounded-full p-2 transition-colors hover:bg-slate-800 md:hidden" aria-label="Apri ricerca">
+					<svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+					</svg>
+				</button>
+				
 				<div class="relative" use:clickOutside>
 					<button
 						on:click={toggleCartMenu}
@@ -249,7 +259,7 @@
 						aria-label="Apri menù carrello"
 					>
 						<svg
-							class="h-6 w-6 text-white"
+							class="h-6 w-6 text-black"
 							fill="none"
 							viewBox="0 0 24 24"
 							stroke="currentColor"
@@ -274,32 +284,80 @@
 						<CartMenu />
 					{/if}
 				</div>
+
 				<div class="relative" use:clickOutsideUser>
 					<button on:click={toggleUserMenu} class="rounded-full p-2 transition-colors hover:bg-slate-800" aria-label="Apri menù utente">
-						<svg class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+						<svg class="h-6 w-6 text-black" viewBox="0 0 20 20" fill="currentColor">
 							<path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
 						</svg>
 					</button>
 
 					{#if isUserMenuOpen}
-						<div class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 text-black py-1">
+						<div class="absolute right-0 z-10 mt-2 w-56 rounded-md bg-white py-1 text-black shadow-lg">
 							{#if $utente}
-								<div class="px-4 py-2 text-sm text-gray-500 border-b">
-									Accesso come: <span class="font-medium text-gray-800">{$utente.email}</span>
+								<div class="border-b px-4 py-2 text-sm text-gray-500">
+									Accesso effettuato come:<br />
+									<span class="font-medium text-gray-800">{$utente.email}</span>
 								</div>
-								<a href="/profilo" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Il Mio Profilo</a>
-								<button on:click={() => { utente.logout(); isUserMenuOpen = false; }} class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+								<a href="/profilo" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+									Il Mio Profilo
+								</a>
+								<button
+									on:click={() => {
+										utente.logout();
+										isUserMenuOpen = false;
+									}}
+									class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+								>
 									Logout
 								</button>
 							{:else}
-								<a href="/login?redirectTo={$page.url.pathname}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Accedi</a>
-								<a href="/registrazione?redirectTo={$page.url.pathname}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Registrati</a>
+								<a
+									href="/login?redirectTo={$page.url.pathname}"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+								>
+									Accedi
+								</a>
+								<a
+									href="/registrazione?redirectTo={$page.url.pathname}"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+								>
+									Registrati
+								</a>
 							{/if}
 						</div>
 					{/if}
 				</div>
 			</div>
-
 		</div>
 	</div>
 </nav>
+
+{#if isMobileSearchOpen}
+	<div class="fixed inset-0 z-50 bg-white/50 backdrop-blur-sm" aria-modal="true">
+		<div class="p-4">
+			<form on:submit|preventDefault={handleSearchSubmit} class="relative">
+				<input
+					type="search"
+					bind:value={searchTerm}
+					placeholder="Cerca prodotti..."
+					class="search-theme w-full rounded-full border  py-3 pl-12 pr-10 text-black transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+				/>
+				<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+					<svg class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+						<path
+							fill-rule="evenodd"
+							d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</div>
+			</form>
+			<button on:click={() => isMobileSearchOpen = false} class="absolute top-6 right-6 text-slate-400 hover:text-white" aria-label="Chiudi ricerca">
+				<svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
+		</div>
+	</div>
+{/if}

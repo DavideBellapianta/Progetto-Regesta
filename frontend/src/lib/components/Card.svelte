@@ -53,10 +53,14 @@
 			{prodotto.nome}
 		</h3>
 		<p class="mt-1 text-xl font-bold text-gray-600">{prodotto.prezzo_lordo.toFixed(2)}€</p>
-
 		<button
 			on:click|stopPropagation|preventDefault={addToCart}
-			class="card-buttonTheme mt-4 w-full rounded-lg bg-gradient-to-r from-purple-400 to-indigo-700 py-2 font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+			class="card-buttonTheme mt-4 w-full rounded-lg
+           bg-gradient-to-r from-cyan-700 via-blue-500 to-indigo-600
+           py-2 font-semibold text-white
+           transition-all duration-200 ease-in-out
+           hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/50
+           active:scale-95 active:bg-gradient-to-br"
 		>
 			Aggiungi al carrello
 		</button>

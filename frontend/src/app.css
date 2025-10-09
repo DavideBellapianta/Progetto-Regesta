@@ -33,7 +33,7 @@ body {
 
 /* Classe personalizzata per la Navbar */
 .navbar-theme {
-    background-color: var(--primary);
+    background-color: #29b5fc;
     /* Sfondo blu primario */
     color: var(--background);
     /* Testo quasi bianco per contrasto */
@@ -41,7 +41,7 @@ body {
 
 /* Classe personalizzata per le Card dei prodotti */
 .card-theme {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.307);
     /* Puoi usare 'white' o un colore specifico */
     border: 1px solid #e5e7eb;
     /* Aggiunge un bordo sottile */
@@ -52,4 +52,10 @@ body {
 
     opacity: 35;
    background-color: #0B6E4F;
+}
+
+.search-theme{
+    background: #EEEEEE;
+    border-color: #0FC1A1;
+
 }
