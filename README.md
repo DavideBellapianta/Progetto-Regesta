@@ -57,8 +57,9 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - **Database:** MongoDB
 - **Authentication:** JWT
 
-##🧪 Testing
+## 🧪 Testing
 - **Test Automatici**: Inclusa un'applicazione dedicata in Python (Selenium) per testare le funzionalità principali del servizio.
+
 
 
 
