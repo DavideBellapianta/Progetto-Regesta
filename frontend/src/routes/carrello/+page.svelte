@@ -1,16 +1,17 @@
 <script>
 	import { onMount } from 'svelte';
 	import { cart, favorites } from '$lib/stores.js';
-    import { goto } from '$app/navigation';
-    import { utente } from '$lib/stores.js';
+	import { goto } from '$app/navigation';
+	import { utente } from '$lib/stores.js';
+	import { createSlug } from '$lib/utils.js';
 
-    onMount(() => {
-        setTimeout(() => {
-            if (!$utente) {
-                goto(`/login?redirectTo=/carrello`);
-            }
-        }, 100);
-    });
+	onMount(() => {
+		setTimeout(() => {
+			if (!$utente) {
+				goto(`/login?redirectTo=/carrello`);
+			}
+		}, 100);
+	});
 
 	let scontrino = null;
 	let error = null;
@@ -56,7 +57,7 @@
 	$: favoriteProductsDetails = allProducts.filter((p) => $favorites.has(p.nome));
 </script>
 
-<div class="min-h-screen ">
+<div class="min-h-screen">
 	<main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 		<h1 class="mb-8 text-4xl font-extrabold tracking-tight text-gray-900">Il Tuo Carrello</h1>
 
@@ -75,13 +76,18 @@
 						<ul class="divide-y divide-gray-200">
 							{#each $cart as item}
 								<li class="flex items-center py-6">
-									<img
-										src={item.immagine_url}
-										alt={item.nome}
-										class="h-24 w-24 rounded-md object-cover"
-									/>
+									<a href="/prodotto/{createSlug(item.nome)}">
+										<img
+											src={item.immagine_url}
+											alt={item.nome}
+											class="h-24 w-24 rounded-md object-cover"
+										/>
+									</a>
+
 									<div class="ml-4 flex-1">
-										<p class="font-semibold text-gray-800">{item.nome}</p>
+										<a href="/prodotto/{createSlug(item.nome)}">
+											<p class="font-semibold text-gray-800 hover:underline">{item.nome}</p>
+										</a>
 										<div class="mt-2 flex items-center">
 											<div class="flex items-center text-sm text-gray-700">
 												<button

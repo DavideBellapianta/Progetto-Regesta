@@ -58,13 +58,6 @@
 	})();
 	$: total = subtotal + shippingCost;
 
-	$: shippingCost = (() => {
-		if (selectedShipping === 'rapido' && subtotal < 100) return 10.0;
-		return 0.0;
-	})();
-
-	$: total = subtotal + shippingCost;
-
 	async function handlePayment() {
 		const token = localStorage.getItem('jwt_token');
 		if (!token) {
@@ -179,6 +172,8 @@
 								bind:value={formData.cap}
 								type="text"
 								id="cap"
+								maxlength="5"
+								minlength="5"
 								required
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
 							/>
@@ -197,6 +192,8 @@
 								bind:value={formData.numeroCarta}
 								type="text"
 								id="numeroCarta"
+								maxlength="16"
+								min="16"
 								required
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
 							/>
@@ -210,6 +207,8 @@
 								type="text"
 								id="scadenzaCarta"
 								required
+								maxlength="5"
+								min="4"
 								placeholder="MM/AA"
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
 							/>
@@ -221,6 +220,8 @@
 								type="text"
 								id="cvc"
 								required
+								maxlength="500"
+								minlength="15"
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
 							/>
 						</div>

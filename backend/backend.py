@@ -38,7 +38,7 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 @app.route('/api/registrazione', methods=['POST'])
 def registrazione():
-    """Registrazione dell'utente"""
+    #Registrazione dell'utente
     data = request.get_json()
     required_fields = ['email', 'password', 'nome', 'cognome']
     
@@ -65,7 +65,7 @@ def registrazione():
 @app.route('/api/profilo', methods=['GET', 'POST'])
 @jwt_required()
 def profilo_utente():
-    """Ottiene i dati dell'utente / modifica i dati dell'utente """
+    #Ottiene i dati dell'utente / modifica i dati dell'utente 
     current_user_email = get_jwt_identity()
 
     if request.method == 'POST':
@@ -88,7 +88,7 @@ def profilo_utente():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    """Login con autenticazione e JWT"""
+    #Login con autenticazione e JWT
     data = request.get_json()
     utente = utenti_collection.find_one({'email': data.get('email')})
 
@@ -106,7 +106,7 @@ def login():
 @app.route('/api/preferiti', methods=['POST'])
 @jwt_required()
 def salva_preferiti():
-    """Salva nel db i preferiti per ogni utente"""
+    #Salva nel db i preferiti per ogni utente
     current_user_email = get_jwt_identity()
     preferiti = request.get_json()
     
@@ -124,7 +124,7 @@ def salva_preferiti():
 @app.route('/api/carrello', methods=['POST'])
 @jwt_required()
 def salva_carrello():
-    """Salva il carrello dell'utente"""
+    #Salva il carrello dell'utente
     current_user_email = get_jwt_identity()
     carrello = request.get_json()
     
@@ -138,7 +138,7 @@ def salva_carrello():
 
 @app.route('/prodotti', methods=['GET'])
 def get_prodotti():
-    """Ritorna il prodotto per categoria / random"""
+    #Ritorna il prodotto per categoria / random
     categoria = request.args.get('categoria')
     random_count = request.args.get('random')
 
@@ -160,7 +160,7 @@ def get_prodotti():
 
 @app.route('/calcola', methods=['POST'])
 def gestisci_calcolo():
-    """Gestione dei costi dello scontrio"""
+    #Gestione dei costi dello scontrio
     carrello = request.get_json()
     
     if not carrello:
@@ -177,7 +177,7 @@ def gestisci_calcolo():
 @app.route('/api/checkout', methods=['POST'])
 @jwt_required()
 def checkout():
-    """completa l'ordine e salvalo"""
+    #completa l'ordine e salvalo
     current_user_email = get_jwt_identity()
     carrello = request.get_json().get('cart')
 
@@ -220,7 +220,7 @@ def checkout():
 
 @app.route('/api/geo-ip', methods=['GET'])
 def get_geo_ip():
-    """Restituisce la zona in cui vivi (SERVE CHIAVE API)"""
+    #Restituisce la zona in cui vivi (SERVE CHIAVE API)
     if not ipinfo_token:
         return jsonify({"error": "Configurazione del server incompleta per la geolocalizzazione"}), 500
 
@@ -242,7 +242,7 @@ def get_geo_ip():
 
 @app.route('/api/random-image', methods=['GET'])
 def get_random_image():
-    """restituisce prodotto e immagine random"""
+    #restituisce prodotto e immagine random
     try:
         random_product = list(collection.aggregate([{'$sample': {'size': 1}}]))[0]
         random_product.pop('_id', None)
@@ -254,7 +254,7 @@ def get_random_image():
 
 @app.route('/api/scontrino', methods=['POST'])
 def genera_scontrino():
-    """Genera lo scontrino"""
+    #Genera lo scontrino
     carrello = request.get_json()
     
     if not carrello or not isinstance(carrello, list):
@@ -271,7 +271,7 @@ def genera_scontrino():
 @app.route('/api/scontrino/<order_id>', methods=['GET'])
 @jwt_required()
 def get_scontrino(order_id):
-    """Stampa dello scontrino tramite una pagina HTML Simil scontrino"""
+    #Stampa dello scontrino tramite una pagina HTML Simil scontrino
     current_user_email = get_jwt_identity()
     
     try:
@@ -337,7 +337,7 @@ def get_scontrino(order_id):
 
 @app.route('/api/prodotto/<slug_prodotto>', methods=['GET'])
 def get_prodotto_singolo(slug_prodotto):
-    """Restituisce il prodotto da slug"""
+    #Restituisce il prodotto da slug
     try:
         for prodotto in collection.find({}, {'_id': 0}):
             slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
@@ -352,7 +352,7 @@ def get_prodotto_singolo(slug_prodotto):
 
 @app.route('/api/search-results', methods=['GET'])
 def search_results():
-    """ricerca prodotti con filtri"""
+    #ricerca prodotti con filtri
     query = request.args.get('q', '')
     categoria = request.args.get('categoria')
     prezzo_min = request.args.get('prezzo_min')
@@ -383,7 +383,7 @@ def search_results():
 @app.route('/api/ordini', methods=['GET'])
 @jwt_required()
 def get_ordini():
-    """cronologia degli ordini"""
+    #cronologia degli ordini
     current_user_email = get_jwt_identity()
     
     try:
@@ -402,7 +402,7 @@ def get_ordini():
 
 @app.route('/api/categorie', methods=['GET'])
 def get_categorie():
-    """ritorna le varie categorie dal db degli oggetti"""
+    #ritorna le varie categorie dal db degli oggetti
     try:
         categorie = collection.distinct('categoria')
         return jsonify(categorie)

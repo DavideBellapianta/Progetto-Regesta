@@ -2,10 +2,9 @@
 	import { onMount } from 'svelte';
 	import { cart, cartItemsCount, isCartOpenMobile } from '../stores.js';
 	import CartMenu from './CartMenu.svelte';
-	import { createSlug } from '$lib/utils.js'; 
-	import { page } from '$app/stores'; 
+	import { createSlug } from '$lib/utils.js';
+	import { page } from '$app/stores';
 	import { utente } from '../stores.js';
-
 
 	const API_BASE_URL = 'http://127.0.0.1:5000';
 	const SEARCH_DEBOUNCE_MS = 300;
@@ -17,9 +16,9 @@
 	let searchResults = [];
 	let debounceTimer;
 	let isSearchFocused = false;
-	let isUserMenuOpen = false; 
-	
-let isMobileSearchOpen = false;
+	let isUserMenuOpen = false;
+
+	let isMobileSearchOpen = false;
 
 	function toggleCartMenu() {
 		isCartOpenMobile.update((isOpen) => !isOpen);
@@ -129,7 +128,6 @@ let isMobileSearchOpen = false;
 	});
 </script>
 
-
 <nav class="navbar-theme sticky top-0 z-50 shadow-lg">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 items-center justify-between gap-8">
@@ -194,7 +192,7 @@ let isMobileSearchOpen = false;
 							bind:value={searchTerm}
 							on:input={onSearchInput}
 							placeholder="Cerca prodotti..."
-							class="search-theme w-full rounded-full border   py-2 pl-10 pr-4 text-black transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+							class="search-theme w-full rounded-full border py-2 pl-10 pr-4 text-black transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
 						/>
 						<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
 							<svg class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
@@ -234,12 +232,26 @@ let isMobileSearchOpen = false;
 			</div>
 
 			<div class="flex flex-shrink-0 items-center space-x-2">
-				<button on:click={() => isMobileSearchOpen = true} class="rounded-full p-2 transition-colors hover:bg-slate-800 md:hidden" aria-label="Apri ricerca">
-					<svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+				<button
+					on:click={() => (isMobileSearchOpen = true)}
+					class="rounded-full p-2 transition-colors hover:bg-slate-800 md:hidden"
+					aria-label="Apri ricerca"
+				>
+					<svg
+						class="h-6 w-6 text-white"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+						/>
 					</svg>
 				</button>
-				
+
 				<div class="relative" use:clickOutside>
 					<button
 						on:click={toggleCartMenu}
@@ -275,14 +287,24 @@ let isMobileSearchOpen = false;
 				</div>
 
 				<div class="relative" use:clickOutsideUser>
-					<button on:click={toggleUserMenu} class="rounded-full p-2 transition-colors hover:bg-slate-800" aria-label="Apri menù utente">
+					<button
+						on:click={toggleUserMenu}
+						class="rounded-full p-2 transition-colors hover:bg-slate-800"
+						aria-label="Apri menù utente"
+					>
 						<svg class="h-6 w-6 text-black" viewBox="0 0 20 20" fill="currentColor">
-							<path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+							<path
+								fill-rule="evenodd"
+								d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+								clip-rule="evenodd"
+							/>
 						</svg>
 					</button>
 
 					{#if isUserMenuOpen}
-						<div class="absolute right-0 z-10 mt-2 w-56 rounded-md bg-white py-1 text-black shadow-lg">
+						<div
+							class="absolute right-0 z-10 mt-2 w-56 rounded-md bg-white py-1 text-black shadow-lg"
+						>
 							{#if $utente}
 								<div class="border-b px-4 py-2 text-sm text-gray-500">
 									Accesso effettuato come:<br />
@@ -330,7 +352,7 @@ let isMobileSearchOpen = false;
 					type="search"
 					bind:value={searchTerm}
 					placeholder="Cerca prodotti..."
-					class="search-theme w-full rounded-full border  py-3 pl-12 pr-10 text-black transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+					class="search-theme w-full rounded-full border py-3 pl-12 pr-10 text-black transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
 				/>
 				<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
 					<svg class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
@@ -342,7 +364,11 @@ let isMobileSearchOpen = false;
 					</svg>
 				</div>
 			</form>
-			<button on:click={() => isMobileSearchOpen = false} class="absolute top-6 right-6 text-slate-400 hover:text-white" aria-label="Chiudi ricerca">
+			<button
+				on:click={() => (isMobileSearchOpen = false)}
+				class="absolute right-6 top-6 text-slate-400 hover:text-white"
+				aria-label="Chiudi ricerca"
+			>
 				<svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
 				</svg>

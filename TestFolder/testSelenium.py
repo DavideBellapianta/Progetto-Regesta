@@ -12,20 +12,20 @@ from selenium.webdriver.common.keys import Keys
 class FullUserJourneyTest(unittest.TestCase):
 
     def setUp(self):
-        """Prepara il browser prima del test."""
+        #Prepara il browser prima del test.
         self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
         self.base_url = "http://localhost:5173"
         self.driver.get(self.base_url)
         self.driver.maximize_window()
 
     def tearDown(self):
-        """Pulisce e chiude il browser dopo il test."""
+        #Pulisce e chiude il browser dopo il test.
         print("Test completato. Il browser si chiuderà tra 5 secondi.")
         time.sleep(5)
         self.driver.quit()
 
     def test_full_user_journey(self):
-        """Esegue l'intero percorso: login, ricerca, interazione, carrello e pagamento."""
+        #Esegue l'intero percorso: login, ricerca, interazione, carrello e pagamento.
         driver = self.driver
         wait = WebDriverWait(driver, 15)
 
