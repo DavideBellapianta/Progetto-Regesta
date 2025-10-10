@@ -10,7 +10,7 @@
 > **Sistema di E-Commerce Completo con Gestione POS**
 
 Un'applicazione web moderna per la gestione di vendite online con funzionalità complete di catalogo, carrello e sistema di pagamento.
-
+[Manuale d'uso](https://docs.google.com/document/d/1D-iD6ySRSMTE_2vF7IYUspjGktVcQ5FYHsPTtpqSHIg/edit?usp=sharing)
 <div align="center">
 
 ### Homepage - Catalogo Prodotti
@@ -56,6 +56,7 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - **Backend:** Python
 - **Database:** MongoDB
 - **Authentication:** JWT
+
 
 
 
