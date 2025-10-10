@@ -10,7 +10,7 @@
 > **Sistema di E-Commerce Completo con Gestione POS**
 
 Un'applicazione web moderna per la gestione di vendite online con funzionalità complete di catalogo, carrello e sistema di pagamento.
-[Manuale d'uso utente](https://docs.google.com/document/d/1D-iD6ySRSMTE_2vF7IYUspjGktVcQ5FYHsPTtpqSHIg/edit?usp=sharing) [Manuale d'uso Admin]([https://docs.google.com/document/d/1D-iD6ySRSMTE_2vF7IYUspjGktVcQ5FYHsPTtpqSHIg/edit?usp=sharing](https://docs.google.com/document/d/1T4pVNrQZteYiWHWS7Yc43FHqHQ8niNeXFbfG5IZQTjk/edit?usp=sharing)) [TDD/BDD](https://docs.google.com/document/d/1WCHKvUJXN33FFV7T_rbOO9tqv_enCzUocbcRUm5gYcU/edit?usp=sharing)
+[Manuale d'uso utente](https://docs.google.com/document/d/1D-iD6ySRSMTE_2vF7IYUspjGktVcQ5FYHsPTtpqSHIg/edit?usp=sharing) [Manuale d'uso Admin](https://docs.google.com/document/d/1T4pVNrQZteYiWHWS7Yc43FHqHQ8niNeXFbfG5IZQTjk/edit?usp=sharing) [TDD/BDD](https://docs.google.com/document/d/1WCHKvUJXN33FFV7T_rbOO9tqv_enCzUocbcRUm5gYcU/edit?usp=sharing)
 <div align="center">
 
 ### Homepage - Catalogo Prodotti
@@ -53,7 +53,7 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - 📊 Pannello di controllo integrato nella pagina profilo per la gestione del magazzino.
 - ⚠️ Monitoraggio scorte critiche con visualizzazione prioritaria dei prodotti esauriti o in backorder.
 - ⬆️ Funzionalità di Restock rapida per rifornire i prodotti direttamente dal pannello.
-- 📝 Gestione catalogo (CRUD) tramite API protette per aggiungere, modificare o eliminare prodotti.
+- 📝 Gestione catalogo tramite API protette per aggiungere i prodotti finiti.
 
 ---
 
@@ -66,6 +66,8 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 
 ## 🧪 Testing
 - **Test Automatici**: Inclusa un'applicazione dedicata in Python (Selenium) per testare le funzionalità principali del servizio.
+
+
 
 
 
