@@ -14,7 +14,6 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from functools import wraps
 
-#Vari dati per la connessione al db / API per ip
 load_dotenv()
 username = os.getenv("MONGO_USER")
 password = os.getenv("MONGO_PASS")
@@ -36,10 +35,23 @@ app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-key-def
 jwt = JWTManager(app)
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
+def admin_required():
+    def wrapper(fn):
+        @wraps(fn)
+        @jwt_required()
+        def decorator(*args, **kwargs):
+            current_user_email = get_jwt_identity()
+            user = utenti_collection.find_one({"email": current_user_email})
+            if user and user.get("ruolo") == "admin":
+                return fn(*args, **kwargs)
+            else:
+                return jsonify({"msg": "Accesso riservato agli amministratori"}), 403
+        return decorator
+    return wrapper
 
 @app.route('/api/registrazione', methods=['POST'])
 def registrazione():
-    #Registrazione dell'utente
+    # Registrazione dell'utente
     data = request.get_json()
     required_fields = ['email', 'password', 'nome', 'cognome']
     
@@ -62,11 +74,26 @@ def registrazione():
     
     return jsonify({"msg": "Utente registrato con successo"}), 201
 
+@app.route('/api/login', methods=['POST'])
+def login():
+    # Login con autenticazione e JWT
+    data = request.get_json()
+    utente = utenti_collection.find_one({'email': data.get('email')})
+
+    if utente and check_password_hash(utente['password'], data.get('password')):
+        access_token = create_access_token(identity=data.get('email'))
+        return jsonify(
+            access_token=access_token,
+            carrello=utente.get('carrello', []),
+            preferiti=utente.get('preferiti', [])
+        )
+        
+    return jsonify({"msg": "Credenziali non valide"}), 401
 
 @app.route('/api/profilo', methods=['GET', 'POST'])
 @jwt_required()
 def profilo_utente():
-    #Ottiene i dati dell'utente / modifica i dati dell'utente 
+    # Ottiene i dati dell'utente / modifica i dati dell'utente 
     current_user_email = get_jwt_identity()
 
     if request.method == 'POST':
@@ -86,28 +113,24 @@ def profilo_utente():
     utente = utenti_collection.find_one({'email': current_user_email}, {'_id': 0, 'password': 0})
     return jsonify(utente) if utente else (jsonify({"msg": "Utente non trovato"}), 404)
 
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    #Login con autenticazione e JWT
-    data = request.get_json()
-    utente = utenti_collection.find_one({'email': data.get('email')})
-
-    if utente and check_password_hash(utente['password'], data.get('password')):
-        access_token = create_access_token(identity=data.get('email'))
-        return jsonify(
-            access_token=access_token,
-            carrello=utente.get('carrello', []),
-            preferiti=utente.get('preferiti', [])
-        )
-        
-    return jsonify({"msg": "Credenziali non valide"}), 401
-
+@app.route('/api/carrello', methods=['POST'])
+@jwt_required()
+def salva_carrello():
+    # Salva il carrello dell'utente
+    current_user_email = get_jwt_identity()
+    carrello = request.get_json()
+    
+    utenti_collection.update_one(
+        {'email': current_user_email},
+        {'$set': {'carrello': carrello}}
+    )
+    
+    return jsonify({"msg": "Carrello salvato"}), 200
 
 @app.route('/api/preferiti', methods=['POST'])
 @jwt_required()
 def salva_preferiti():
-    #Salva nel db i preferiti per ogni utente
+    # Salva nel db i preferiti per ogni utente
     current_user_email = get_jwt_identity()
     preferiti = request.get_json()
     
@@ -121,25 +144,9 @@ def salva_preferiti():
     
     return jsonify({"msg": "Preferiti salvati"}), 200
 
-
-@app.route('/api/carrello', methods=['POST'])
-@jwt_required()
-def salva_carrello():
-    #Salva il carrello dell'utente
-    current_user_email = get_jwt_identity()
-    carrello = request.get_json()
-    
-    utenti_collection.update_one(
-        {'email': current_user_email},
-        {'$set': {'carrello': carrello}}
-    )
-    
-    return jsonify({"msg": "Carrello salvato"}), 200
-
-
 @app.route('/prodotti', methods=['GET'])
 def get_prodotti():
-    #Ritorna il prodotto per categoria / random
+    # Ritorna il prodotto per categoria / random
     categoria = request.args.get('categoria')
     random_count = request.args.get('random')
 
@@ -158,22 +165,80 @@ def get_prodotti():
         print(f"Errore durante il recupero dei prodotti: {e}")
         return jsonify({"error": "Impossibile recuperare i prodotti"}), 500
 
-
-@app.route('/calcola', methods=['POST'])
-def gestisci_calcolo():
-    #Gestione dei costi dello scontrio
-    carrello = request.get_json()
-    
-    if not carrello:
-        return jsonify({"error": "Carrello vuoto o formato non valido"}), 400
-        
+@app.route('/api/prodotto/<slug_prodotto>', methods=['GET'])
+def get_prodotto_singolo(slug_prodotto):
+    # Restituisce il prodotto da slug
     try:
-        risultato = calcola_scontrino(carrello, collection)
-        return jsonify(risultato)
+        for prodotto in collection.find({}, {'_id': 0}):
+            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
+            if slug_db == slug_prodotto:
+                return jsonify(prodotto)
+                
+        return jsonify({"error": f"Prodotto non trovato per lo slug: {slug_prodotto}"}), 404
     except Exception as e:
-        print(f"Errore durante il calcolo dello scontrino: {e}")
-        return jsonify({"error": "Errore interno durante il calcolo"}), 500
+        print(f"Errore durante il recupero del prodotto singolo: {e}")
+        return jsonify({"error": "Errore interno del server"}), 500
 
+@app.route('/api/prodotto/<slug_prodotto>/quantita', methods=['GET'])
+def get_quantita_prodotto(slug_prodotto):
+    """Restituisce la quantità disponibile per un singolo prodotto dato lo slug."""
+    try:
+        # Cerca il prodotto usando la stessa logica di slugging
+        prodotto_trovato = None
+        for prodotto in collection.find({}, {'_id': 0, 'nome': 1, 'quantita': 1}):
+            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
+            if slug_db == slug_prodotto:
+                prodotto_trovato = prodotto
+                break
+        
+        if prodotto_trovato:
+            # Restituisce solo la quantità, con un default di 0 se non presente
+            return jsonify({"quantita": prodotto_trovato.get("quantita", 0)})
+        else:
+            return jsonify({"error": f"Prodotto non trovato per lo slug: {slug_prodotto}"}), 404
+            
+    except Exception as e:
+        print(f"Errore durante il recupero della quantità del prodotto: {e}")
+        return jsonify({"error": "Errore interno del server"}), 500
+
+@app.route('/api/categorie', methods=['GET'])
+def get_categorie():
+    # ritorna le varie categorie dal db degli oggetti
+    try:
+        categorie = collection.distinct('categoria')
+        return jsonify(categorie)
+    except Exception as e:
+        print(f"Errore durante il recupero delle categorie: {e}")
+        return jsonify({"error": "Impossibile recuperare le categorie"}), 500
+
+@app.route('/api/search-results', methods=['GET'])
+def search_results():
+    # ricerca prodotti con filtri
+    query = request.args.get('q', '')
+    categoria = request.args.get('categoria')
+    prezzo_min = request.args.get('prezzo_min')
+    prezzo_max = request.args.get('prezzo_max')
+
+    mongo_query = {}
+
+    if query:
+        mongo_query['nome'] = {'$regex': re.compile(query, re.IGNORECASE)}
+    if categoria:
+        mongo_query['categoria'] = categoria
+    if prezzo_min or prezzo_max:
+        prezzo_filter = {}
+        if prezzo_min:
+            prezzo_filter['$gte'] = float(prezzo_min)
+        if prezzo_max:
+            prezzo_filter['$lte'] = float(prezzo_max)
+        mongo_query['prezzo_lordo'] = prezzo_filter
+
+    try:
+        risultati = list(collection.find(mongo_query, {'_id': 0}))
+        return jsonify(risultati)
+    except Exception as e:
+        print(f"Errore durante la ricerca filtrata: {e}")
+        return jsonify({"error": "Errore interno del server"}), 500
 
 @app.route('/api/checkout', methods=['POST'])
 @jwt_required()
@@ -226,44 +291,45 @@ def checkout():
     except Exception as e:
         print(f"Errore durante il checkout: {e}")
         return jsonify({"error": "Errore interno durante la finalizzazione dell'ordine"}), 500
+
+@app.route('/api/ordini', methods=['GET'])
+@jwt_required()
+def get_ordini():
+    # cronologia degli ordini
+    current_user_email = get_jwt_identity()
     
-@app.route('/api/geo-ip', methods=['GET'])
-def get_geo_ip():
-    #Restituisce la zona in cui vivi (SERVE CHIAVE API)
-    if not ipinfo_token:
-        return jsonify({"error": "Configurazione del server incompleta per la geolocalizzazione"}), 500
-
     try:
-        response = requests.get(f'https://ipinfo.io/json?token={ipinfo_token}', timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        ordini = list(ordini_collection.find(
+            {'utente_email': current_user_email}
+        ).sort('data_ordine', -1))
         
-        return jsonify({
-            "city": data.get("city"),
-            "country_code": data.get("country")
-        })
-    except requests.exceptions.Timeout:
-        return jsonify({"error": "Il servizio di geolocalizzazione è lento a rispondere"}), 504
-    except requests.exceptions.RequestException as e:
-        print(f"Errore chiamando il servizio di geolocalizzazione: {e}")
-        return jsonify({"error": "Servizio di geolocalizzazione non raggiungibile dal server"}), 503
-
-
-@app.route('/api/random-image', methods=['GET'])
-def get_random_image():
-    #restituisce prodotto e immagine random
-    try:
-        random_product = list(collection.aggregate([{'$sample': {'size': 1}}]))[0]
-        random_product.pop('_id', None)
-        return jsonify(random_product)
+        for ordine in ordini:
+            ordine['_id'] = str(ordine['_id'])
+            
+        return jsonify(ordini)
     except Exception as e:
-        print(f"Errore durante il recupero dell'immagine casuale: {e}")
-        return jsonify({"error": "Impossibile recuperare l'immagine"}), 500
+        print(f"Errore durante il recupero degli ordini: {e}")
+        return jsonify({"error": "Impossibile recuperare la cronologia ordini"}), 500
 
+
+@app.route('/calcola', methods=['POST'])
+def gestisci_calcolo():
+    # Gestione dei costi dello scontrio
+    carrello = request.get_json()
+    
+    if not carrello:
+        return jsonify({"error": "Carrello vuoto o formato non valido"}), 400
+        
+    try:
+        risultato = calcola_scontrino(carrello, collection)
+        return jsonify(risultato)
+    except Exception as e:
+        print(f"Errore durante il calcolo dello scontrino: {e}")
+        return jsonify({"error": "Errore interno durante il calcolo"}), 500
 
 @app.route('/api/scontrino', methods=['POST'])
 def genera_scontrino():
-    #Genera lo scontrino
+    # Genera lo scontrino
     carrello = request.get_json()
     
     if not carrello or not isinstance(carrello, list):
@@ -276,11 +342,10 @@ def genera_scontrino():
         print(f"Errore durante la generazione dello scontrino: {e}")
         return jsonify({"error": "Errore interno durante il calcolo dello scontrino"}), 500
 
-
 @app.route('/api/scontrino/<order_id>', methods=['GET'])
 @jwt_required()
 def get_scontrino(order_id):
-    #Stampa dello scontrino tramite una pagina HTML Simil scontrino
+    # Stampa dello scontrino tramite una pagina HTML Simil scontrino
     current_user_email = get_jwt_identity()
     
     try:
@@ -343,122 +408,44 @@ def get_scontrino(order_id):
         print(f"Errore nella generazione dello scontrino HTML: {e}")
         return "Errore interno del server durante la creazione dello scontrino.", 500
 
-
-@app.route('/api/prodotto/<slug_prodotto>', methods=['GET'])
-def get_prodotto_singolo(slug_prodotto):
-    #Restituisce il prodotto da slug
-    try:
-        for prodotto in collection.find({}, {'_id': 0}):
-            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
-            if slug_db == slug_prodotto:
-                return jsonify(prodotto)
-                
-        return jsonify({"error": f"Prodotto non trovato per lo slug: {slug_prodotto}"}), 404
-    except Exception as e:
-        print(f"Errore durante il recupero del prodotto singolo: {e}")
-        return jsonify({"error": "Errore interno del server"}), 500
-
-
-@app.route('/api/search-results', methods=['GET'])
-def search_results():
-    #ricerca prodotti con filtri
-    query = request.args.get('q', '')
-    categoria = request.args.get('categoria')
-    prezzo_min = request.args.get('prezzo_min')
-    prezzo_max = request.args.get('prezzo_max')
-
-    mongo_query = {}
-
-    if query:
-        mongo_query['nome'] = {'$regex': re.compile(query, re.IGNORECASE)}
-    if categoria:
-        mongo_query['categoria'] = categoria
-    if prezzo_min or prezzo_max:
-        prezzo_filter = {}
-        if prezzo_min:
-            prezzo_filter['$gte'] = float(prezzo_min)
-        if prezzo_max:
-            prezzo_filter['$lte'] = float(prezzo_max)
-        mongo_query['prezzo_lordo'] = prezzo_filter
+# ===== ROTTE UTILITY =====
+@app.route('/api/geo-ip', methods=['GET'])
+def get_geo_ip():
+    # Restituisce la zona in cui vivi (SERVE CHIAVE API)
+    if not ipinfo_token:
+        return jsonify({"error": "Configurazione del server incompleta per la geolocalizzazione"}), 500
 
     try:
-        risultati = list(collection.find(mongo_query, {'_id': 0}))
-        return jsonify(risultati)
-    except Exception as e:
-        print(f"Errore durante la ricerca filtrata: {e}")
-        return jsonify({"error": "Errore interno del server"}), 500
-
-
-@app.route('/api/ordini', methods=['GET'])
-@jwt_required()
-def get_ordini():
-    #cronologia degli ordini
-    current_user_email = get_jwt_identity()
-    
-    try:
-        ordini = list(ordini_collection.find(
-            {'utente_email': current_user_email}
-        ).sort('data_ordine', -1))
+        response = requests.get(f'https://ipinfo.io/json?token={ipinfo_token}', timeout=10)
+        response.raise_for_status()
+        data = response.json()
         
-        for ordine in ordini:
-            ordine['_id'] = str(ordine['_id'])
-            
-        return jsonify(ordini)
-    except Exception as e:
-        print(f"Errore durante il recupero degli ordini: {e}")
-        return jsonify({"error": "Impossibile recuperare la cronologia ordini"}), 500
+        return jsonify({
+            "city": data.get("city"),
+            "country_code": data.get("country")
+        })
+    except requests.exceptions.Timeout:
+        return jsonify({"error": "Il servizio di geolocalizzazione è lento a rispondere"}), 504
+    except requests.exceptions.RequestException as e:
+        print(f"Errore chiamando il servizio di geolocalizzazione: {e}")
+        return jsonify({"error": "Servizio di geolocalizzazione non raggiungibile dal server"}), 503
 
-
-@app.route('/api/categorie', methods=['GET'])
-def get_categorie():
-    #ritorna le varie categorie dal db degli oggetti
+@app.route('/api/random-image', methods=['GET'])
+def get_random_image():
+    # restituisce prodotto e immagine random
     try:
-        categorie = collection.distinct('categoria')
-        return jsonify(categorie)
+        random_product = list(collection.aggregate([{'$sample': {'size': 1}}]))[0]
+        random_product.pop('_id', None)
+        return jsonify(random_product)
     except Exception as e:
-        print(f"Errore durante il recupero delle categorie: {e}")
-        return jsonify({"error": "Impossibile recuperare le categorie"}), 500
+        print(f"Errore durante il recupero dell'immagine casuale: {e}")
+        return jsonify({"error": "Impossibile recuperare l'immagine"}), 500
 
-@app.route('/api/prodotto/<slug_prodotto>/quantita', methods=['GET'])
-def get_quantita_prodotto(slug_prodotto):
-    """Restituisce la quantità disponibile per un singolo prodotto dato lo slug."""
-    try:
-        # Cerca il prodotto usando la stessa logica di slugging
-        prodotto_trovato = None
-        for prodotto in collection.find({}, {'_id': 0, 'nome': 1, 'quantita': 1}):
-            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
-            if slug_db == slug_prodotto:
-                prodotto_trovato = prodotto
-                break
-        
-        if prodotto_trovato:
-            # Restituisce solo la quantità, con un default di 0 se non presente
-            return jsonify({"quantita": prodotto_trovato.get("quantita", 0)})
-        else:
-            return jsonify({"error": f"Prodotto non trovato per lo slug: {slug_prodotto}"}), 404
-            
-    except Exception as e:
-        print(f"Errore durante il recupero della quantità del prodotto: {e}")
-        return jsonify({"error": "Errore interno del server"}), 500
-
-def admin_required():
-    def wrapper(fn):
-        @wraps(fn)
-        @jwt_required()
-        def decorator(*args, **kwargs):
-            current_user_email = get_jwt_identity()
-            user = utenti_collection.find_one({"email": current_user_email})
-            if user and user.get("ruolo") == "admin":
-                return fn(*args, **kwargs)
-            else:
-                return jsonify({"msg": "Accesso riservato agli amministratori"}), 403
-        return decorator
-    return wrapper
-
+# ===== ROTTE ADMIN =====
 @app.route('/api/admin/crea-utente', methods=['POST'])
 @admin_required()
 def crea_utente_admin():
-    """Crea un nuovo utente (admin o normale) - Rotta solo per admin"""
+    #Crea un nuovo utente (admin o normale) - Rotta solo per admin
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -486,7 +473,7 @@ def crea_utente_admin():
 @app.route('/api/prodotti', methods=['POST'])
 @admin_required()
 def aggiungi_prodotto():
-    """Aggiunge un nuovo prodotto al database"""
+    #Aggiunge un nuovo prodotto al database
     data = request.get_json()
     # Aggiungi qui la validazione dei campi necessari (nome, prezzo, ecc.)
     collection.insert_one(data)
@@ -495,7 +482,7 @@ def aggiungi_prodotto():
 @app.route('/api/prodotti/<product_id>', methods=['PUT'])
 @admin_required()
 def modifica_prodotto(product_id):
-    """Modifica un prodotto esistente"""
+    #Modifica un prodotto esistente
     try:
         obj_id = ObjectId(product_id)
         data = request.get_json()
@@ -509,7 +496,7 @@ def modifica_prodotto(product_id):
 @app.route('/api/prodotti/<product_id>', methods=['DELETE'])
 @admin_required()
 def elimina_prodotto(product_id):
-    """Elimina un prodotto"""
+    #Elimina un prodotto
     try:
         obj_id = ObjectId(product_id)
         result = collection.delete_one({'_id': obj_id})
@@ -518,7 +505,6 @@ def elimina_prodotto(product_id):
         return jsonify({"msg": "Prodotto eliminato con successo"}), 200
     except InvalidId:
         return jsonify({"msg": "ID prodotto non valido"}), 400
-
 
 @app.route('/api/admin/prodotti-esauriti', methods=['GET'])
 @admin_required()
@@ -535,11 +521,10 @@ def get_prodotti_esauriti():
         print(f"Errore durante il recupero dei prodotti esauriti: {e}")
         return jsonify({"error": "Errore interno del server"}), 500
 
-
 @app.route('/api/admin/restock', methods=['POST'])
 @admin_required()
 def restock_prodotto():
-    """Aumenta la quantità di un prodotto specifico."""
+    #Aumenta la quantità di un prodotto specifico.
     data = request.get_json()
     product_id = data.get('productId')
     quantita_da_aggiungere = data.get('quantity')
@@ -569,7 +554,6 @@ def restock_prodotto():
     except Exception as e:
         print(f"Errore durante il restock: {e}")
         return jsonify({"error": "Errore interno del server"}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
