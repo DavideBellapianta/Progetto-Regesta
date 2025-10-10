@@ -53,7 +53,7 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 - 📊 Pannello di controllo integrato nella pagina profilo per la gestione del magazzino.
 - ⚠️ Monitoraggio scorte critiche con visualizzazione prioritaria dei prodotti esauriti o in backorder.
 - ⬆️ Funzionalità di Restock rapida per rifornire i prodotti direttamente dal pannello.
-- 📝 Gestione catalogo (CRUD) tramite API protette per aggiungere, modificare o eliminare prodotti.
+- 📝 Gestione catalogo tramite API protette per aggiungere i prodotti finiti.
 
 ---
 
@@ -66,6 +66,7 @@ Un'applicazione web moderna per la gestione di vendite online con funzionalità 
 
 ## 🧪 Testing
 - **Test Automatici**: Inclusa un'applicazione dedicata in Python (Selenium) per testare le funzionalità principali del servizio.
+
 
 
 
