@@ -3,32 +3,31 @@
 	import { goto } from '$app/navigation';
 	import { utente } from '$lib/stores.js';
 	import { createSlug } from '$lib/utils.js';
-;
 
 	let userProfile = null;
 	let orderHistory = [];
+	let outOfStockProducts = []; // Stato per i prodotti esauriti (per admin)
+
 	let error = null;
 	let successMsg = '';
 	let isLoading = true;
 
 	onMount(() => {
 		const unsubscribe = utente.subscribe((currentUser) => {
-			if (currentUser === undefined) {
-				return; 
-			}
-
+			if (currentUser === undefined) return;
 			if (currentUser) {
 				loadPageData();
 			} else {
 				goto(`/login?redirectTo=/profilo`);
 			}
 		});
-
 		return () => unsubscribe();
 	});
 
 	async function loadPageData() {
 		isLoading = true;
+		error = null;
+		successMsg = '';
 		const token = localStorage.getItem('jwt_token');
 		if (!token) {
 			error = 'Token di autenticazione non trovato.';
@@ -37,21 +36,39 @@
 		}
 
 		try {
-			const [profileRes, ordersRes] = await Promise.all([
-				fetch('http://127.0.0.1:5000/api/profilo', { headers: { Authorization: `Bearer ${token}` } }),
-				fetch('http://127.0.0.1:5000/api/ordini', { headers: { Authorization: `Bearer ${token}` } })
-			]);
-
+			// Carica il profilo utente
+			const profileRes = await fetch('http://127.0.0.1:5000/api/profilo', {
+				headers: { Authorization: `Bearer ${token}` }
+			});
 			if (profileRes.ok) {
 				userProfile = await profileRes.json();
 			} else {
 				throw new Error('Impossibile caricare il profilo.');
 			}
 
-			if (ordersRes.ok) {
-				orderHistory = await ordersRes.json();
+			// Se l'utente è un admin, carica i prodotti esauriti
+			if (userProfile.ruolo === 'admin') {
+				const outOfStockRes = await fetch('http://127.0.0.1:5000/api/admin/prodotti-esauriti', {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+				if (outOfStockRes.ok) {
+					let products = await outOfStockRes.json();
+					// Ordina i prodotti per mostrare prima quelli in negativo (più urgenti)
+					products.sort((a, b) => a.quantita - b.quantita);
+					outOfStockProducts = products;
+				} else {
+					throw new Error('Impossibile caricare la lista dei prodotti da rifornire.');
+				}
 			} else {
-				throw new Error('Impossibile caricare la cronologia ordini.');
+				// Altrimenti, carica la cronologia ordini per l'utente normale
+				const ordersRes = await fetch('http://127.0.0.1:5000/api/ordini', {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+				if (ordersRes.ok) {
+					orderHistory = await ordersRes.json();
+				} else {
+					throw new Error('Impossibile caricare la cronologia ordini.');
+				}
 			}
 		} catch (e) {
 			error = e.message;
@@ -72,10 +89,9 @@
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
 				body: JSON.stringify(userProfile)
 			});
-
 			if (response.ok) {
 				successMsg = 'Profilo aggiornato con successo!';
-				setTimeout(() => (successMsg = ''), 3000); 
+				setTimeout(() => (successMsg = ''), 3000);
 			} else {
 				const data = await response.json();
 				throw new Error(data.msg || "Errore durante l'aggiornamento.");
@@ -84,22 +100,18 @@
 			error = e.message;
 		}
 	}
+
 	async function handleDownloadReceipt(orderId) {
 		const token = localStorage.getItem('jwt_token');
-		if (!token) {
-			alert('Devi essere loggato per scaricare uno scontrino.');
-			return;
-		}
+		if (!token) return;
 		try {
 			const response = await fetch(`http://127.0.0.1:5000/api/scontrino/${orderId}`, {
 				headers: { Authorization: `Bearer ${token}` }
 			});
-
 			if (response.ok) {
 				const receiptHtml = await response.text();
 				const blob = new Blob([receiptHtml], { type: 'text/html' });
-				const url = URL.createObjectURL(blob);
-				window.open(url, '_blank'); 
+				window.open(URL.createObjectURL(blob), '_blank');
 			} else {
 				throw new Error('Impossibile scaricare lo scontrino.');
 			}
@@ -107,14 +119,44 @@
 			alert(e.message);
 		}
 	}
-</script>
 
+	async function handleRestock(productId) {
+		const quantityStr = prompt('Inserisci la quantità da aggiungere:', '50');
+		if (!quantityStr) return;
+
+		const quantity = parseInt(quantityStr, 10);
+		if (isNaN(quantity) || quantity <= 0) {
+			alert('Per favore, inserisci un numero positivo valido.');
+			return;
+		}
+
+		const token = localStorage.getItem('jwt_token');
+		if (!token) return;
+
+		try {
+			const response = await fetch(`http://127.0.0.1:5000/api/admin/restock`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+				body: JSON.stringify({ productId, quantity })
+			});
+			const data = await response.json();
+			if (response.ok) {
+				alert(data.msg);
+				loadPageData(); // Ricarica i dati per aggiornare la vista
+			} else {
+				throw new Error(data.msg || 'Errore durante il restock.');
+			}
+		} catch (e) {
+			alert(e.message);
+		}
+	}
+</script>
 
 <main class="mx-auto max-w-4xl px-4 py-10">
 	<h1 class="mb-8 text-3xl font-bold text-gray-900">Il Mio Profilo</h1>
 
 	{#if isLoading}
-		<p class="text-center text-gray-500">Caricamento profilo...</p>
+		<p class="text-center text-gray-500">Caricamento...</p>
 	{:else if error}
 		<p class="text-center text-red-500">{error}</p>
 	{:else if userProfile}
@@ -169,53 +211,97 @@
 			</div>
 		</form>
 
-		<section class="mt-12">
-			<h2 class="mb-6 text-2xl font-bold text-gray-900">Cronologia Ordini</h2>
-			<div class="space-y-8">
-				{#if orderHistory.length > 0}
-					{#each orderHistory as order}
-						<div class="rounded-lg bg-white p-6 shadow-lg">
-							<div class="mb-4 flex items-center justify-between border-b border-gray-200 pb-4">
-								<div>
-									<p class="font-semibold text-gray-800">
-										Ordine del {new Date(order.data_ordine).toLocaleDateString('it-IT', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric'
-										})}
-									</p>
-									<p class="text-sm text-gray-500">Totale: {order.totale_netto}</p>
-								</div>
-								<button on:click={() => handleDownloadReceipt(order._id)} class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-300">
-									Vedi Scontrino
-								</button>
-							</div>
-							<ul class="divide-y divide-gray-200">
-								{#each order.prodotti as item}
-									<li class="flex items-center py-2">
-										<a href="/prodotto/{createSlug(item.nome)}">
-											<img src={item.immagine_url} alt={item.nome} class="h-12 w-12 rounded-md object-cover" />
-										</a>
-										<div class="ml-4 flex-1">
-											<a href="/prodotto/{createSlug(item.nome)}" class="text-sm font-medium text-gray-800 hover:text-indigo-600">
-												{item.nome}
-											</a>
-											<p class="text-xs text-gray-500">Quantità: {item.quantita}</p>
+		{#if userProfile.ruolo === 'admin'}
+			<section class="mt-12">
+				<h2 class="mb-6 text-2xl font-bold text-gray-900">Pannello Gestione Scorte</h2>
+				<div class="rounded-lg bg-white p-6 shadow-lg">
+					<h3 class="border-b pb-4 text-xl font-semibold text-gray-800">Prodotti da Rifornire</h3>
+					<div class="mt-4 space-y-4">
+						{#if outOfStockProducts.length > 0}
+							{#each outOfStockProducts as product}
+								<div class="flex flex-col gap-4 rounded-md border p-4 sm:flex-row sm:items-center sm:justify-between"
+									 class:border-amber-400={product.quantita < 0}
+									 class:bg-amber-50={product.quantita < 0}
+									 class:border-gray-200={product.quantita >= 0}>
+									
+									<div class="flex items-center">
+										<img src={product.immagine_url} alt={product.nome} class="h-16 w-16 flex-shrink-0 rounded-md object-cover" />
+										<div class="ml-4">
+											<p class="font-semibold text-gray-800">{product.nome}</p>
+											{#if product.quantita < 0}
+												<p class="text-sm font-bold text-red-600">
+													Richiesto in ordini inevasi: {-product.quantita} unità
+												</p>
+											{:else}
+												<p class="text-sm text-gray-500">Quantità attuale: {product.quantita}</p>
+											{/if}
 										</div>
-										<p class="text-sm font-medium text-gray-900">
-											{item.prezzo_finale_riga}
-										</p>
-									</li>
-								{/each}
-							</ul>
-						</div>
-					{/each}
-				{:else}
-					<div class="rounded-lg bg-white p-8 text-center shadow-lg">
-						<p class="text-gray-500">Non hai ancora effettuato nessun ordine.</p>
+									</div>
+									
+									<div class="flex items-center gap-4">
+										{#if product.quantita < 0}
+										<div class="flex items-center gap-x-2 text-sm text-amber-800">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+												<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+											</svg>
+											<span class="font-semibold">Agire subito!</span>
+										</div>
+										{/if}
+										<button on:click={() => handleRestock(product._id)} class="flex-shrink-0 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
+											Fai Restock
+										</button>
+									</div>
+								</div>
+							{/each}
+						{:else}
+							<p class="py-4 text-center text-gray-500">Nessun prodotto esaurito da mostrare. Ottimo lavoro!</p>
+						{/if}
 					</div>
-				{/if}
-			</div>
-		</section>
+				</div>
+			</section>
+		{:else}
+			<section class="mt-12">
+				<h2 class="mb-6 text-2xl font-bold text-gray-900">Cronologia Ordini</h2>
+				<div class="space-y-8">
+					{#if orderHistory.length > 0}
+						{#each orderHistory as order}
+							<div class="rounded-lg bg-white p-6 shadow-lg">
+								<div class="mb-4 flex items-center justify-between border-b border-gray-200 pb-4">
+									<div>
+										<p class="font-semibold text-gray-800">
+											Ordine del {new Date(order.data_ordine).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })}
+										</p>
+										<p class="text-sm text-gray-500">Totale: {order.totale_netto}</p>
+									</div>
+									<button on:click={() => handleDownloadReceipt(order._id)} class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-300">
+										Vedi Scontrino
+									</button>
+								</div>
+								<ul class="divide-y divide-gray-200">
+									{#each order.prodotti as item}
+										<li class="flex items-center py-2">
+											<a href="/prodotto/{createSlug(item.nome)}">
+												<img src={item.immagine_url} alt={item.nome} class="h-12 w-12 rounded-md object-cover" />
+											</a>
+											<div class="ml-4 flex-1">
+												<a href="/prodotto/{createSlug(item.nome)}" class="text-sm font-medium text-gray-800 hover:text-indigo-600">
+													{item.nome}
+												</a>
+												<p class="text-xs text-gray-500">Quantità: {item.quantita}</p>
+											</div>
+											<p class="text-sm font-medium text-gray-900">{item.prezzo_finale_riga}</p>
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/each}
+					{:else}
+						<div class="rounded-lg bg-white p-8 text-center shadow-lg">
+							<p class="text-gray-500">Non hai ancora effettuato nessun ordine.</p>
+						</div>
+					{/if}
+				</div>
+			</section>
+		{/if}
 	{/if}
 </main>

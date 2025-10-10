@@ -220,8 +220,8 @@
 								type="text"
 								id="cvc"
 								required
-								maxlength="500"
-								minlength="15"
+								maxlength="3"
+								minlength="3"
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
 							/>
 						</div>

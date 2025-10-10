@@ -12,6 +12,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from datetime import datetime
 from bson import ObjectId
 from bson.errors import InvalidId
+from functools import wraps
 
 #Vari dati per la connessione al db / API per ip
 load_dotenv()
@@ -177,9 +178,10 @@ def gestisci_calcolo():
 @app.route('/api/checkout', methods=['POST'])
 @jwt_required()
 def checkout():
-    #completa l'ordine e salvalo
+    # completa l'ordine e salvalo
     current_user_email = get_jwt_identity()
-    carrello = request.get_json().get('cart')
+    data = request.get_json()
+    carrello = data.get('cart')
 
     if not carrello:
         return jsonify({"msg": "Il carrello è vuoto"}), 400
@@ -206,6 +208,14 @@ def checkout():
             'totale_netto': scontrino['totale_netto'],
             'totale_tasse': scontrino['totale_tasse']
         })
+        
+        for item in carrello:
+            quantita_acquistata = item.get('quantita', 0)
+            
+            collection.update_one(
+                {'nome': item['nome']},
+                {'$inc': {'quantita': -quantita_acquistata}}
+            )
 
         utenti_collection.update_one(
             {'email': current_user_email},
@@ -216,8 +226,7 @@ def checkout():
     except Exception as e:
         print(f"Errore durante il checkout: {e}")
         return jsonify({"error": "Errore interno durante la finalizzazione dell'ordine"}), 500
-
-
+    
 @app.route('/api/geo-ip', methods=['GET'])
 def get_geo_ip():
     #Restituisce la zona in cui vivi (SERVE CHIAVE API)
@@ -409,6 +418,157 @@ def get_categorie():
     except Exception as e:
         print(f"Errore durante il recupero delle categorie: {e}")
         return jsonify({"error": "Impossibile recuperare le categorie"}), 500
+
+@app.route('/api/prodotto/<slug_prodotto>/quantita', methods=['GET'])
+def get_quantita_prodotto(slug_prodotto):
+    """Restituisce la quantità disponibile per un singolo prodotto dato lo slug."""
+    try:
+        # Cerca il prodotto usando la stessa logica di slugging
+        prodotto_trovato = None
+        for prodotto in collection.find({}, {'_id': 0, 'nome': 1, 'quantita': 1}):
+            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
+            if slug_db == slug_prodotto:
+                prodotto_trovato = prodotto
+                break
+        
+        if prodotto_trovato:
+            # Restituisce solo la quantità, con un default di 0 se non presente
+            return jsonify({"quantita": prodotto_trovato.get("quantita", 0)})
+        else:
+            return jsonify({"error": f"Prodotto non trovato per lo slug: {slug_prodotto}"}), 404
+            
+    except Exception as e:
+        print(f"Errore durante il recupero della quantità del prodotto: {e}")
+        return jsonify({"error": "Errore interno del server"}), 500
+
+def admin_required():
+    def wrapper(fn):
+        @wraps(fn)
+        @jwt_required()
+        def decorator(*args, **kwargs):
+            current_user_email = get_jwt_identity()
+            user = utenti_collection.find_one({"email": current_user_email})
+            if user and user.get("ruolo") == "admin":
+                return fn(*args, **kwargs)
+            else:
+                return jsonify({"msg": "Accesso riservato agli amministratori"}), 403
+        return decorator
+    return wrapper
+
+@app.route('/api/admin/crea-utente', methods=['POST'])
+@admin_required()
+def crea_utente_admin():
+    """Crea un nuovo utente (admin o normale) - Rotta solo per admin"""
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    ruolo = data.get('ruolo', 'utente') # Default a 'utente' se non specificato
+
+    if not email or not password:
+        return jsonify({"msg": "Email e password sono richiesti"}), 400
+    
+    if ruolo not in ['utente', 'admin']:
+        return jsonify({"msg": "Ruolo non valido. Usare 'utente' o 'admin'"}), 400
+
+    if utenti_collection.find_one({'email': email}):
+        return jsonify({"msg": "Utente già esistente"}), 409
+
+    utenti_collection.insert_one({
+        'email': email,
+        'password': generate_password_hash(password),
+        'nome': data.get('nome', ''),
+        'cognome': data.get('cognome', ''),
+        'ruolo': ruolo
+    })
+    
+    return jsonify({"msg": f"Utente '{email}' con ruolo '{ruolo}' creato con successo"}), 201
+
+@app.route('/api/prodotti', methods=['POST'])
+@admin_required()
+def aggiungi_prodotto():
+    """Aggiunge un nuovo prodotto al database"""
+    data = request.get_json()
+    # Aggiungi qui la validazione dei campi necessari (nome, prezzo, ecc.)
+    collection.insert_one(data)
+    return jsonify({"msg": "Prodotto aggiunto con successo"}), 201
+
+@app.route('/api/prodotti/<product_id>', methods=['PUT'])
+@admin_required()
+def modifica_prodotto(product_id):
+    """Modifica un prodotto esistente"""
+    try:
+        obj_id = ObjectId(product_id)
+        data = request.get_json()
+        result = collection.update_one({'_id': obj_id}, {'$set': data})
+        if result.matched_count == 0:
+            return jsonify({"msg": "Prodotto non trovato"}), 404
+        return jsonify({"msg": "Prodotto aggiornato con successo"}), 200
+    except InvalidId:
+        return jsonify({"msg": "ID prodotto non valido"}), 400
+
+@app.route('/api/prodotti/<product_id>', methods=['DELETE'])
+@admin_required()
+def elimina_prodotto(product_id):
+    """Elimina un prodotto"""
+    try:
+        obj_id = ObjectId(product_id)
+        result = collection.delete_one({'_id': obj_id})
+        if result.deleted_count == 0:
+            return jsonify({"msg": "Prodotto non trovato"}), 404
+        return jsonify({"msg": "Prodotto eliminato con successo"}), 200
+    except InvalidId:
+        return jsonify({"msg": "ID prodotto non valido"}), 400
+
+
+@app.route('/api/admin/prodotti-esauriti', methods=['GET'])
+@admin_required()
+def get_prodotti_esauriti():
+    """Restituisce una lista di prodotti con quantità pari o inferiore a 0."""
+    try:
+        # Trova prodotti con quantità <= 0
+        prodotti = list(collection.find({'quantita': {'$lte': 0}}))
+        # Converte ObjectId in stringa per la risposta JSON
+        for prodotto in prodotti:
+            prodotto['_id'] = str(prodotto['_id'])
+        return jsonify(prodotti)
+    except Exception as e:
+        print(f"Errore durante il recupero dei prodotti esauriti: {e}")
+        return jsonify({"error": "Errore interno del server"}), 500
+
+
+@app.route('/api/admin/restock', methods=['POST'])
+@admin_required()
+def restock_prodotto():
+    """Aumenta la quantità di un prodotto specifico."""
+    data = request.get_json()
+    product_id = data.get('productId')
+    quantita_da_aggiungere = data.get('quantity')
+
+    if not product_id or not quantita_da_aggiungere:
+        return jsonify({"msg": "ID prodotto e quantità sono richiesti"}), 400
+    
+    try:
+        quantita_da_aggiungere = int(quantita_da_aggiungere)
+        if quantita_da_aggiungere <= 0:
+            return jsonify({"msg": "La quantità deve essere un numero positivo"}), 400
+    except (ValueError, TypeError):
+        return jsonify({"msg": "La quantità deve essere un numero valido"}), 400
+
+    try:
+        obj_id = ObjectId(product_id)
+        result = collection.update_one(
+            {'_id': obj_id},
+            {'$inc': {'quantita': quantita_da_aggiungere}}
+        )
+        if result.matched_count == 0:
+            return jsonify({"msg": "Prodotto non trovato"}), 404
+            
+        return jsonify({"msg": f"Restock di {quantita_da_aggiungere} unità completato."}), 200
+    except InvalidId:
+        return jsonify({"msg": "ID prodotto non valido"}), 400
+    except Exception as e:
+        print(f"Errore durante il restock: {e}")
+        return jsonify({"error": "Errore interno del server"}), 500
 
 
 if __name__ == '__main__':
