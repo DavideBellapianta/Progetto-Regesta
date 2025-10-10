@@ -506,19 +506,18 @@ def elimina_prodotto(product_id):
     except InvalidId:
         return jsonify({"msg": "ID prodotto non valido"}), 400
 
-@app.route('/api/admin/prodotti-esauriti', methods=['GET'])
+@app.route('/api/admin/prodotti-da-rifornire', methods=['GET'])
 @admin_required()
-def get_prodotti_esauriti():
-    """Restituisce una lista di prodotti con quantità pari o inferiore a 0."""
+def get_prodotti_da_rifornire():
+    #Restituisce prodotti quasi finiti
     try:
-        # Trova prodotti con quantità <= 0
-        prodotti = list(collection.find({'quantita': {'$lte': 0}}))
-        # Converte ObjectId in stringa per la risposta JSON
+        prodotti = list(collection.find({'quantita': {'$lte': 10}}))
         for prodotto in prodotti:
             prodotto['_id'] = str(prodotto['_id'])
+            
         return jsonify(prodotti)
     except Exception as e:
-        print(f"Errore durante il recupero dei prodotti esauriti: {e}")
+        print(f"Errore durante il recupero dei prodotti da rifornire: {e}")
         return jsonify({"error": "Errore interno del server"}), 500
 
 @app.route('/api/admin/restock', methods=['POST'])
