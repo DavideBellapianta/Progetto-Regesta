@@ -283,7 +283,7 @@
 										</div>
 									</div>
 									<button
-										on:click={() => handleRestock(product._id)}
+										on:click={() => 	(product._id)}
 										class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
 									>
 										Fai Restock

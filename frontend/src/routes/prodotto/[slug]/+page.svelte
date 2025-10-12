@@ -89,9 +89,9 @@
 					<div class="flex items-center space-x-4">
 						<button
 							on:click={addToCart}
-							disabled={quantitaRimanente === 0}
+							disabled={quantitaRimanente <= 0}
 							class="flex-1 rounded-lg bg-indigo-600 py-3 text-lg font-semibold text-white transition hover:bg-indigo-700
-                                   disabled:cursor-not-allowed disabled:bg-gray-400"
+		   disabled:cursor-not-allowed disabled:bg-gray-400"
 						>
 							Aggiungi al carrello
 						</button>
