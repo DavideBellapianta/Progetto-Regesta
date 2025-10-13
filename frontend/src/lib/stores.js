@@ -24,7 +24,7 @@ function createCart() {
     return {
         subscribe,
         set,
-        add: (prodotto) =>
+        add: (prodotto) => //Aggiunge il prodotto al carrello
             update((items) => {
                 const itemInCart = items.find((i) => i.nome === prodotto.nome);
                 if (itemInCart) itemInCart.quantita += 1;
@@ -32,14 +32,14 @@ function createCart() {
                 saveCartToDB(items);
                 return items;
             }),
-        remove: (nome) =>
+        remove: (nome) => //Rimuove il prodotto dal carrello
             update((items) => {
                 const updatedItems = items.filter((i) => i.nome !== nome);
                 saveCartToDB(updatedItems);
                 return updatedItems;
             }),
 
-        increment: (nomeProdotto) =>
+        increment: (nomeProdotto) => //Incrementa la quantità del prodotto nel carrello
             update((items) => {
                 const itemInCart = items.find((i) => i.nome === nomeProdotto);
                 if (itemInCart) {
@@ -49,7 +49,7 @@ function createCart() {
                 return items;
             }),
 
-        decrement: (nomeProdotto) =>
+        decrement: (nomeProdotto) => //Decrementa la quantità del prodotto nel carrello
             update((items) => {
                 const itemInCart = items.find((i) => i.nome === nomeProdotto);
                 if (itemInCart && itemInCart.quantita > 1) {
@@ -63,7 +63,7 @@ function createCart() {
                 }
             }),
 
-        reset: () => {
+        reset: () => { //Svuota il carrello
             set([]);
             saveCartToDB([]);
         }
@@ -75,7 +75,7 @@ function createUtenteStore() {
 
     return {
         subscribe,
-        login: async (email, password) => {
+        login: async (email, password) => { //chiama il backend per il login
             let localCart = [];
             const unsubscribe = cart.subscribe(value => {
                 localCart = value;
@@ -90,7 +90,7 @@ function createUtenteStore() {
 
             if (response.ok) {
                 const data = await response.json();
-                if (browser) localStorage.setItem('jwt_token', data.access_token);
+                if (browser) localStorage.setItem('jwt_token', data.access_token); //salva il token
                 set({ email });
 
                 let cartFromDB = data.carrello || [];
@@ -110,7 +110,7 @@ function createUtenteStore() {
                 throw new Error('Login fallito. Controlla le credenziali.');
             }
         },
-        logout: () => {
+        logout: () => { //effettua il logout e rimuove il token
             if (browser) {
                 localStorage.removeItem('jwt_token'); 
             }
@@ -118,7 +118,7 @@ function createUtenteStore() {
             set(null);
         },
 
-        checkAuth: async () => {
+        checkAuth: async () => { //Se esiste un token lo verifica con il backend
             if (!browser) return;
 
             const token = localStorage.getItem('jwt_token');
@@ -160,8 +160,8 @@ export const isCartOpenMobile = writable(false);
 
 function createFavoritesStore() {
     const { subscribe, set, update } = writable(new Set());
-
-    async function saveFavoritesToDB(itemsSet) {
+//
+    async function saveFavoritesToDB(itemsSet) { //Salva i preferiti nel database
         if (!browser) return;
         const token = localStorage.getItem('jwt_token');
         if (token) {
