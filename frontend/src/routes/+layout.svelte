@@ -22,7 +22,7 @@
 		}
 	}
 	onMount(() => {
-		utente.checkAuth();
+		utente.checkAuth(); // Controlla l'autenticazione dell'utente a tutte le pagine
 	});
 </script>
 

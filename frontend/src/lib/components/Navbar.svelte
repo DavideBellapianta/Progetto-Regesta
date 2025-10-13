@@ -21,13 +21,13 @@
 	let isMobileSearchOpen = false;
 
 	function toggleCartMenu() {
-		isCartOpenMobile.update((isOpen) => !isOpen);
+		isCartOpenMobile.update((isOpen) => !isOpen); //menù carrello
 	}
-	function toggleUserMenu() {
+	function toggleUserMenu() { //menù utente
 		isUserMenuOpen = !isUserMenuOpen;
 	}
 
-	function clickOutside(node) {
+	function clickOutsideCarrello(node) { //funzione che permette (se clicco fuori dai menù) di chiuderli
 		const handleClick = (event) => {
 			if (node && !node.contains(event.target) && !event.defaultPrevented) {
 				isCartOpenMobile.set(false);
@@ -59,8 +59,8 @@
 			window.location.href = `/cerca?q=${encodeURIComponent(searchTerm.trim())}`;
 		}
 	}
-
-	async function onSearchInput() {
+	//Funzionano insieme per la della barra di ricerca
+	async function onSearchInput() { 
 		clearTimeout(debounceTimer);
 		if (searchTerm.length < 2) {
 			searchResults = [];
@@ -78,7 +78,7 @@
 		}, SEARCH_DEBOUNCE_MS);
 	}
 
-	async function getPreciseLocation() {
+	async function getPreciseLocation() { //Ottiene la posizione precisa tramite geolocalizzazione del browser
 		if (!('geolocation' in navigator)) return;
 		isLoadingPrecise = true;
 		navigator.geolocation.getCurrentPosition(
@@ -252,7 +252,7 @@
 					</svg>
 				</button>
 
-				<div class="relative" use:clickOutside>
+				<div class="relative" use:clickOutsideCarrello>
 					<button
 						on:click={toggleCartMenu}
 						class="relative rounded-full p-2 transition-colors hover:bg-slate-800"
