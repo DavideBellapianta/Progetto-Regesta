@@ -22,27 +22,28 @@ ipinfo_token = os.getenv("IPINFO_TOKEN")
 if not username or not password:
     raise ValueError("Le variabili MONGO_USER e MONGO_PASS devono essere definite nel file .env")
 
-encoded_password = urllib.parse.quote_plus(password)
+encoded_password = urllib.parse.quote_plus(password) #codifica password
 uri = f"mongodb+srv://{username}:{encoded_password}@progetto1.baefqmn.mongodb.net/?retryWrites=true&w=majority&appName=Progetto1"
 client = MongoClient(uri)
-db = client['databaseProdotti']
-collection = db['prodotti']
+db = client['databaseProdotti'] 
+collection = db['prodotti'] #Varie collection del db
 utenti_collection = db['utenti']
 ordini_collection = db['ordini']
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-key-default")
-jwt = JWTManager(app)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+jwt = JWTManager(app) #flash e token
 
-def admin_required():
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}) #CORS per connettere frontend
+
+def admin_required(): 
     def wrapper(fn):
         @wraps(fn)
-        @jwt_required()
+        @jwt_required() #controlla che sia autenticato 
         def decorator(*args, **kwargs):
-            current_user_email = get_jwt_identity()
-            user = utenti_collection.find_one({"email": current_user_email})
-            if user and user.get("ruolo") == "admin":
+            current_user_email = get_jwt_identity() #prende l'email dell'utente
+            user = utenti_collection.find_one({"email": current_user_email}) #cerca l'utente nel db
+            if user and user.get("ruolo") == "admin": #controlla che sia admin
                 return fn(*args, **kwargs)
             else:
                 return jsonify({"msg": "Accesso riservato agli amministratori"}), 403
@@ -55,10 +56,10 @@ def registrazione():
     data = request.get_json()
     required_fields = ['email', 'password', 'nome', 'cognome']
     
-    if not all(data.get(field) for field in required_fields):
+    if not all(data.get(field) for field in required_fields): #tutti i campi obbligatori
         return jsonify({"msg": "Tutti i campi sono richiesti"}), 400
         
-    if utenti_collection.find_one({'email': data['email']}):
+    if utenti_collection.find_one({'email': data['email']}): #trova se esiste già l'utente
         return jsonify({"msg": "Utente già esistente"}), 409
 
     utenti_collection.insert_one({
@@ -80,12 +81,12 @@ def login():
     data = request.get_json()
     utente = utenti_collection.find_one({'email': data.get('email')})
 
-    if utente and check_password_hash(utente['password'], data.get('password')):
+    if utente and check_password_hash(utente['password'], data.get('password')): #se email e pass(cifrata) sono ok
         access_token = create_access_token(identity=data.get('email'))
         return jsonify(
             access_token=access_token,
             carrello=utente.get('carrello', []),
-            preferiti=utente.get('preferiti', [])
+            preferiti=utente.get('preferiti', []) #accesso con dati (carrello e preferiti)
         )
         
     return jsonify({"msg": "Credenziali non valide"}), 401
@@ -96,7 +97,7 @@ def profilo_utente():
     # Ottiene i dati dell'utente / modifica i dati dell'utente 
     current_user_email = get_jwt_identity()
 
-    if request.method == 'POST':
+    if request.method == 'POST': #modifica i vari dati
         data = request.get_json()
         update_fields = {
             'nome': data.get('nome'), 'cognome': data.get('cognome'), 'telefono': data.get('telefono'),
@@ -110,17 +111,17 @@ def profilo_utente():
         utenti_collection.update_one({'email': current_user_email}, {'$set': update_fields})
         return jsonify({"msg": "Profilo aggiornato con successo"}), 200
 
-    utente = utenti_collection.find_one({'email': current_user_email}, {'_id': 0, 'password': 0})
+    utente = utenti_collection.find_one({'email': current_user_email}, {'_id': 0, 'password': 0}) #ottiene l'email
     return jsonify(utente) if utente else (jsonify({"msg": "Utente non trovato"}), 404)
 
 @app.route('/api/carrello', methods=['POST'])
 @jwt_required()
 def salva_carrello():
     # Salva il carrello dell'utente
-    current_user_email = get_jwt_identity()
+    current_user_email = get_jwt_identity() #controlla utente
     carrello = request.get_json()
     
-    utenti_collection.update_one(
+    utenti_collection.update_one( #salva il carrello
         {'email': current_user_email},
         {'$set': {'carrello': carrello}}
     )
@@ -137,7 +138,7 @@ def salva_preferiti():
     if not isinstance(preferiti, list):
         return jsonify({"msg": "Formato dati non valido"}), 400
         
-    utenti_collection.update_one(
+    utenti_collection.update_one( #stessa cosa del carrello ma con i preferiti
         {'email': current_user_email},
         {'$set': {'preferiti': preferiti}}
     )
@@ -148,11 +149,11 @@ def salva_preferiti():
 def get_prodotti():
     # Ritorna il prodotto per categoria / random
     categoria = request.args.get('categoria')
-    random_count = request.args.get('random')
+    random_count = request.args.get('random') #opzioni di ricerca
 
     try:
         if categoria:
-            prodotti = list(collection.find({'categoria': categoria}, {'_id': 0}))
+            prodotti = list(collection.find({'categoria': categoria}, {'_id': 0})) 
         elif random_count:
             prodotti = list(collection.aggregate([{'$sample': {'size': int(random_count)}}]))
             for p in prodotti:
@@ -170,7 +171,7 @@ def get_prodotto_singolo(slug_prodotto):
     # Restituisce il prodotto da slug
     try:
         for prodotto in collection.find({}, {'_id': 0}):
-            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
+            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-'))) #crea un link per i prodotti0
             if slug_db == slug_prodotto:
                 return jsonify(prodotto)
                 
@@ -183,17 +184,16 @@ def get_prodotto_singolo(slug_prodotto):
 def get_quantita_prodotto(slug_prodotto):
     """Restituisce la quantità disponibile per un singolo prodotto dato lo slug."""
     try:
-        # Cerca il prodotto usando la stessa logica di slugging
         prodotto_trovato = None
         for prodotto in collection.find({}, {'_id': 0, 'nome': 1, 'quantita': 1}):
-            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-')))
+            slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', prodotto['nome'].lower().replace(' ', '-'))) #creo lo slug
             if slug_db == slug_prodotto:
-                prodotto_trovato = prodotto
+                prodotto_trovato = prodotto #trovo il prodotto
                 break
         
         if prodotto_trovato:
             # Restituisce solo la quantità, con un default di 0 se non presente
-            return jsonify({"quantita": prodotto_trovato.get("quantita", 0)})
+            return jsonify({"quantita": prodotto_trovato.get("quantita", 0)}) 
         else:
             return jsonify({"error": f"Prodotto non trovato per lo slug: {slug_prodotto}"}), 404
             
@@ -408,10 +408,8 @@ def get_scontrino(order_id):
         print(f"Errore nella generazione dello scontrino HTML: {e}")
         return "Errore interno del server durante la creazione dello scontrino.", 500
 
-# ===== ROTTE UTILITY =====
 @app.route('/api/geo-ip', methods=['GET'])
 def get_geo_ip():
-    # Restituisce la zona in cui vivi (SERVE CHIAVE API)
     if not ipinfo_token:
         return jsonify({"error": "Configurazione del server incompleta per la geolocalizzazione"}), 500
 
@@ -441,15 +439,14 @@ def get_random_image():
         print(f"Errore durante il recupero dell'immagine casuale: {e}")
         return jsonify({"error": "Impossibile recuperare l'immagine"}), 500
 
-# ===== ROTTE ADMIN =====
 @app.route('/api/admin/crea-utente', methods=['POST'])
 @admin_required()
 def crea_utente_admin():
-    #Crea un nuovo utente (admin o normale) - Rotta solo per admin
+
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    ruolo = data.get('ruolo', 'utente') # Default a 'utente' se non specificato
+    ruolo = data.get('ruolo', 'utente')
 
     if not email or not password:
         return jsonify({"msg": "Email e password sono richiesti"}), 400
@@ -473,16 +470,13 @@ def crea_utente_admin():
 @app.route('/api/prodotti', methods=['POST'])
 @admin_required()
 def aggiungi_prodotto():
-    #Aggiunge un nuovo prodotto al database
     data = request.get_json()
-    # Aggiungi qui la validazione dei campi necessari (nome, prezzo, ecc.)
     collection.insert_one(data)
     return jsonify({"msg": "Prodotto aggiunto con successo"}), 201
 
 @app.route('/api/prodotti/<product_id>', methods=['PUT'])
 @admin_required()
 def modifica_prodotto(product_id):
-    #Modifica un prodotto esistente
     try:
         obj_id = ObjectId(product_id)
         data = request.get_json()
@@ -496,7 +490,6 @@ def modifica_prodotto(product_id):
 @app.route('/api/prodotti/<product_id>', methods=['DELETE'])
 @admin_required()
 def elimina_prodotto(product_id):
-    #Elimina un prodotto
     try:
         obj_id = ObjectId(product_id)
         result = collection.delete_one({'_id': obj_id})
@@ -509,7 +502,6 @@ def elimina_prodotto(product_id):
 @app.route('/api/admin/prodotti-da-rifornire', methods=['GET'])
 @admin_required()
 def get_prodotti_da_rifornire():
-    #Restituisce prodotti quasi finiti
     try:
         prodotti = list(collection.find({'quantita': {'$lte': 10}}))
         for prodotto in prodotti:
@@ -520,7 +512,7 @@ def get_prodotti_da_rifornire():
         print(f"Errore durante il recupero dei prodotti da rifornire: {e}")
         return jsonify({"error": "Errore interno del server"}), 500
 
-@app.route('/api/admin/restock', methods=['POST'])
+@app.route('/api/admin/restock', methods=['POST']) #solo admin
 @admin_required()
 def restock_prodotto():
     #Aumenta la quantità di un prodotto specifico.
@@ -529,7 +521,7 @@ def restock_prodotto():
     quantita_da_aggiungere = data.get('quantity')
 
     if not product_id or not quantita_da_aggiungere:
-        return jsonify({"msg": "ID prodotto e quantità sono richiesti"}), 400
+        return jsonify({"msg": "ID prodotto e quantità sono richiesti"}), 400 
     
     try:
         quantita_da_aggiungere = int(quantita_da_aggiungere)
@@ -539,7 +531,7 @@ def restock_prodotto():
         return jsonify({"msg": "La quantità deve essere un numero valido"}), 400
 
     try:
-        obj_id = ObjectId(product_id)
+        obj_id = ObjectId(product_id) #prova ad aumentare la quantità dall'ID (specifico di mongo)
         result = collection.update_one(
             {'_id': obj_id},
             {'$inc': {'quantita': quantita_da_aggiungere}}
