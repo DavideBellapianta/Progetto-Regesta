@@ -11,8 +11,6 @@
 	let prodotto = null;
 	let error = null;
 	let isFavorite = false;
-
-	// NUOVA VARIABILE DI STATO PER LA QUANTITÀ
 	let quantitaRimanente = null;
 
 	onMount(async () => {
@@ -31,7 +29,6 @@
 		}
 	});
 
-	// NUOVA FUNZIONE PER RECUPERARE LA QUANTITÀ
 	async function fetchQuantita(slug) {
 		try {
 			const response = await fetch(`http://127.0.0.1:5000/api/prodotto/${slug}/quantita`);
@@ -39,11 +36,11 @@
 				const data = await response.json();
 				quantitaRimanente = data.quantita;
 			} else {
-				quantitaRimanente = 0; // Se non trova il prodotto, la quantità è 0
+				quantitaRimanente = 0; 
 			}
 		} catch (e) {
 			console.error('Errore nel recupero della quantità:', e);
-			quantitaRimanente = 0; // In caso di errore, mettiamo 0
+			quantitaRimanente = 0;
 		}
 	}
 
@@ -55,8 +52,6 @@
 	}
 
 	$: if (prodotto) isFavorite = $favorites.has(prodotto.nome);
-
-	// BLOCCO REATTIVO: quando 'prodotto' viene caricato, parte la fetch per la quantità
 	$: if (prodotto) {
 		fetchQuantita($page.params.slug);
 	}

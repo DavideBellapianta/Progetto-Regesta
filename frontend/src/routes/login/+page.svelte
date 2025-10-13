@@ -7,8 +7,6 @@
 	let password = '';
 	let error = null;
 	let isLoading = false;
-
-	// NUOVA VARIABILE: per gestire la visibilità della password
 	let isPasswordVisible = false;
 
 	async function handleLogin() {

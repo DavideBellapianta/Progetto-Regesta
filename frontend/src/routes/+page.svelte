@@ -5,7 +5,6 @@
 	import DebugImage from '$lib/components/DebugImage.svelte';
 	import { isCartOpenMobile } from '$lib/stores.js';
 
-	// Variabili di stato per contenere i dati dal backend
 	let randomProducts = [];
 	let foodProducts = [];
 	let medicalProducts = [];
