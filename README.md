@@ -134,7 +134,7 @@ L'applicazione richiede l'avvio separato di backend e frontend in **due terminal
 
 1.  **Avvia il Backend** (dalla cartella principale del progetto):
     ```bash
-    python app.py  # o il nome del tuo file principale
+    python backend.py
     ```
     *Il server sarà in ascolto su `http://127.0.0.1:5000`.*
 
@@ -157,3 +157,4 @@ Per approfondimenti sul funzionamento, il design dei test e le guide all'uso, co
 
 ## Schema ER 
 ![Schema](frontend/src/lib/assets/schemaER.png)
+
