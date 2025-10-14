@@ -176,6 +176,7 @@
 								minlength="5"
 								required
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+								placeholder="25039"
 							/>
 						</div>
 					</div>
@@ -196,6 +197,7 @@
 								min="16"
 								required
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+								placeholder="0000 0000 0000 0000"
 							/>
 						</div>
 						<div class="sm:col-span-2">
@@ -222,6 +224,7 @@
 								required
 								maxlength="3"
 								minlength="3"
+								placeholder="000"
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
 							/>
 						</div>
