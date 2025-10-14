@@ -410,6 +410,7 @@ def get_scontrino(order_id):
 
 @app.route('/api/geo-ip', methods=['GET'])
 def get_geo_ip():
+    # Ottiene la posizione approssimativa dell'utente tramite IP
     if not ipinfo_token:
         return jsonify({"error": "Configurazione del server incompleta per la geolocalizzazione"}), 500
 
@@ -442,7 +443,7 @@ def get_random_image():
 @app.route('/api/admin/crea-utente', methods=['POST'])
 @admin_required()
 def crea_utente_admin():
-
+    # Crea un nuovo utente con ruolo specifico (solo admin)
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -467,41 +468,11 @@ def crea_utente_admin():
     
     return jsonify({"msg": f"Utente '{email}' con ruolo '{ruolo}' creato con successo"}), 201
 
-@app.route('/api/prodotti', methods=['POST'])
-@admin_required()
-def aggiungi_prodotto():
-    data = request.get_json()
-    collection.insert_one(data)
-    return jsonify({"msg": "Prodotto aggiunto con successo"}), 201
-
-@app.route('/api/prodotti/<product_id>', methods=['PUT'])
-@admin_required()
-def modifica_prodotto(product_id):
-    try:
-        obj_id = ObjectId(product_id)
-        data = request.get_json()
-        result = collection.update_one({'_id': obj_id}, {'$set': data})
-        if result.matched_count == 0:
-            return jsonify({"msg": "Prodotto non trovato"}), 404
-        return jsonify({"msg": "Prodotto aggiornato con successo"}), 200
-    except InvalidId:
-        return jsonify({"msg": "ID prodotto non valido"}), 400
-
-@app.route('/api/prodotti/<product_id>', methods=['DELETE'])
-@admin_required()
-def elimina_prodotto(product_id):
-    try:
-        obj_id = ObjectId(product_id)
-        result = collection.delete_one({'_id': obj_id})
-        if result.deleted_count == 0:
-            return jsonify({"msg": "Prodotto non trovato"}), 404
-        return jsonify({"msg": "Prodotto eliminato con successo"}), 200
-    except InvalidId:
-        return jsonify({"msg": "ID prodotto non valido"}), 400
 
 @app.route('/api/admin/prodotti-da-rifornire', methods=['GET'])
 @admin_required()
 def get_prodotti_da_rifornire():
+    # Ottiene i prodotti con quantità bassa (<= 10) per il rifornimento
     try:
         prodotti = list(collection.find({'quantita': {'$lte': 10}}))
         for prodotto in prodotti:
@@ -524,8 +495,8 @@ def restock_prodotto():
         return jsonify({"msg": "ID prodotto e quantità sono richiesti"}), 400 
     
     try:
-        quantita_da_aggiungere = int(quantita_da_aggiungere)
-        if quantita_da_aggiungere <= 0:
+        quantita_da_aggiungere = int(quantita_da_aggiungere) #Mi assicuro sia int e non float (0.2 quantità non ha senso)
+        if quantita_da_aggiungere <= 0: 
             return jsonify({"msg": "La quantità deve essere un numero positivo"}), 400
     except (ValueError, TypeError):
         return jsonify({"msg": "La quantità deve essere un numero valido"}), 400
