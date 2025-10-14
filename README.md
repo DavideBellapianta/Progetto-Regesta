@@ -154,3 +154,6 @@ Per approfondimenti sul funzionamento, il design dei test e le guide all'uso, co
 -   **[Manuale d'Uso (Admin)](https://docs.google.com/document/d/1T4pVNrQZteYiWHWS7Yc43FHqHQ8niNeXFbfG5IZQTjk/edit?usp=sharing)**
 -   **[Documentazione Test (TDD/BDD)](https://docs.google.com/document/d/1WCHKvUJXN33FFV7T_rbOO9tqv_enCzUocbcRUm5gYcU/edit?usp=sharing)**
 -   **[Guida al Deploy e Clonazione](https://docs.google.com/document/d/1DaH7GuubCvphcqf7L6Eg5NuQTkLMXLHAdXNCO2p5ViY/edit?usp=sharing)**
+
+## Schema ER 
+![Schema](frontend/src/lib/assets/schemaER.png)
