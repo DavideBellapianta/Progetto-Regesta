@@ -3,7 +3,7 @@
 	import { createSlug } from '$lib/utils.js';
 
 	let subtotal = 0;
-	$: subtotal = $cart.reduce((sum, item) => sum + item.prezzo_lordo * item.quantita, 0);
+	$: subtotal = $cart.reduce((sum, item) => sum + item.prezzo_lordo * item.quantita, 0); // Calcola il subtotale
 </script>
 
 <div

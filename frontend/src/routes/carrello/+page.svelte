@@ -20,7 +20,7 @@
 
 	let debounceTimer;
 
-	$: if ($cart) {
+	$: if ($cart) { // Calcolo tutte le volte il carrello se aggiungo/rimuovo prodotti, con un timer per evitare errori
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
 			if ($cart.length === 0) {
@@ -54,7 +54,7 @@
 		}
 	});
 
-	$: favoriteProductsDetails = allProducts.filter((p) => $favorites.has(p.nome));
+	$: favoriteProductsDetails = allProducts.filter((p) => $favorites.has(p.nome)); // Dettagli dei prodotti preferiti
 </script>
 
 <div class="min-h-screen">

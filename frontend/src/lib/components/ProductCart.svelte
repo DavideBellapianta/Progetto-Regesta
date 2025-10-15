@@ -10,19 +10,19 @@
 	let touchStartX = 0;
 	let touchEndX = 0;
 
-	function goNext() {
+	function goNext() { //Prodotto successivo
 		if (currentIndex < products.length - visibleCount) {
 			currentIndex += 1;
 		}
 	}
 
-	function goPrev() {
+	function goPrev() { //Prodotto precedente
 		if (currentIndex > 0) {
 			currentIndex -= 1;
 		}
 	}
 
-	$: visibleCount = (() => {
+	$: visibleCount = (() => { //Numero di prodotti in base alla larghezza
 		if (windowWidth < 640) return 1;
 		if (windowWidth < 768) return 2;
 		if (windowWidth < 1024) return 3;

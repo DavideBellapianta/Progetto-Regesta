@@ -2,13 +2,11 @@
     import { onMount } from 'svelte';
 
     export let category = 'other';
-    // NUOVO: Riceve l'elenco completo delle recensioni come prop
     export let allReviews = [];
 
     let reviewsToShow = [];
 
     onMount(() => {
-        // La logica interna rimane la stessa, ma ora usa la prop 'allReviews'
         const relevantReviews = allReviews.filter(review => review.category === category);
         const shuffled = relevantReviews.sort(() => 0.5 - Math.random());
         reviewsToShow = shuffled.slice(0, 3);

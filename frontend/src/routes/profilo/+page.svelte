@@ -25,7 +25,7 @@
         return () => unsubscribe();
     });
 
-    async function loadPageData() {
+    async function loadPageData() { // Carica i dati del profilo, ordini o prodotti da rifornire
         isLoading = true;
         error = null;
         successMsg = '';
@@ -37,7 +37,7 @@
         }
 
         try {
-            const profileRes = await fetch('http://127.0.0.1:5000/api/profilo', {
+            const profileRes = await fetch('http://127.0.0.1:5000/api/profilo', { //ottiene il profilo
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (profileRes.ok) {
@@ -51,7 +51,6 @@
                 });
                 if (restockRes.ok) {
                     const products = await restockRes.json();
-                    // **MODIFICA**: Aggiungiamo 'restockAmount' e 'restockSuccess'
                     // per gestire l'UI di ogni prodotto individualmente.
                     productsToRestock = products.map(p => ({
                         ...p,
@@ -78,7 +77,7 @@
         }
     }
 
-    async function handleUpdateProfile() {
+    async function handleUpdateProfile() { //Aggiorna il profilo con i dati
         successMsg = '';
         error = null;
         const token = localStorage.getItem('jwt_token');
@@ -102,7 +101,7 @@
         }
     }
 
-    async function handleDownloadReceipt(orderId) {
+    async function handleDownloadReceipt(orderId) { //Scarica lo scontrino
         const token = localStorage.getItem('jwt_token');
         if (!token) return;
         try {
@@ -120,9 +119,7 @@
             alert(e.message);
         }
     }
-
-    // **FUNZIONE AGGIORNATA**: Ora non usa alert, ma aggiorna l'UI.
-    async function handleRestock(productId, quantity) {
+    async function handleRestock(productId, quantity) { //restock dei prodotti
         const numQuantity = parseInt(quantity, 10);
         if (isNaN(numQuantity) || numQuantity <= 0) {
             alert('Per favore, inserisci un numero positivo valido.');

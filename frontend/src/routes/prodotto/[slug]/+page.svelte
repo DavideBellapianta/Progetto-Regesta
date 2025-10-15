@@ -14,7 +14,7 @@
     const nomi = ['Marco', 'Laura', 'Luca', 'Giulia', 'Alessandro', 'Chiara', 'Matteo', 'Sara', 'Davide', 'Federica', 'Simone', 'Elisa', 'Andrea', 'Valentina', 'Riccardo', 'Marta'];
     const cognomi = ['R.', 'B.', 'M.', 'F.', 'C.', 'G.', 'S.', 'L.', 'P.', 'D.', 'V.', 'T.', 'Z.', 'N.'];
 
-    const templates = {
+    const templates = { //Varii template per le recensioni
         food: {
             pro: [
                 'Gusto eccezionale, si sente la qualità degli ingredienti.',
@@ -116,7 +116,7 @@
                 let rating;
                 const randomChance = Math.random();
 
-                if (randomChance < 0.6) {
+                if (randomChance < 0.6) { //percentuali di stelle
                     testo = categoryTemplates.pro[Math.floor(Math.random() * categoryTemplates.pro.length)];
                     rating = Math.random() < 0.7 ? 5 : 4; 
                 } else if (randomChance < 0.85) { 
@@ -148,7 +148,7 @@
     onMount(async () => {
         const slug = $page.params.slug;
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/prodotto/${slug}`);
+            const response = await fetch(`http://127.0.0.1:5000/api/prodotto/${slug}`); //dati prodotto
             if (response.ok) {
                 prodotto = await response.json();
             } else {
@@ -160,7 +160,7 @@
         }
     });
 
-    async function fetchQuantita(slug) {
+    async function fetchQuantita(slug) { //richiesta quantità
         try {
             const response = await fetch(`http://127.0.0.1:5000/api/prodotto/${slug}/quantita`);
             if (response.ok) {
@@ -176,10 +176,10 @@
     }
 
     function toggleFavorite() {
-        if (prodotto) favorites.toggle(prodotto);
+        if (prodotto) favorites.toggle(prodotto); //aggiunge / rimuove dai preferiti
     }
     function addToCart() {
-        if (prodotto) cart.add(prodotto);
+        if (prodotto) cart.add(prodotto); //aggiunge al carrello
     }
 
     $: if (prodotto) isFavorite = $favorites.has(prodotto.nome);

@@ -140,13 +140,12 @@
 <nav class="navbar-theme sticky top-0 z-50 shadow-lg">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 items-center justify-between gap-8">
-			<!-- Logo e posizione -->
+
 			<div class="flex items-center gap-6">
 				<div class="flex-shrink-0">
 					<a href="/" class="text-2xl font-bold text-black hover:text-indigo-300"> POS Register </a>
 				</div>
 
-				<!-- Indicatore posizione -->
 				<div class="hidden items-center text-sm text-black lg:flex">
 					<svg class="mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 						<path
@@ -191,7 +190,6 @@
 				</div>
 			</div>
 
-			<!-- Barra di ricerca desktop -->
 			<div class="hidden flex-grow items-center justify-center md:flex">
 				<div
 					class="relative w-full max-w-md"
@@ -217,7 +215,6 @@
 						</div>
 					</form>
 
-					<!-- Risultati ricerca autocompletamento -->
 					{#if isSearchFocused && searchResults.length > 0}
 						<div
 							class="absolute top-full z-20 mt-2 w-full overflow-hidden rounded-lg bg-white shadow-lg"
@@ -244,9 +241,7 @@
 				</div>
 			</div>
 
-			<!-- Icone azioni utente -->
 			<div class="flex flex-shrink-0 items-center space-x-2">
-				<!-- Pulsante ricerca mobile -->
 				<button
 					on:click={() => (isMobileSearchOpen = true)}
 					class="rounded-full p-2 transition-colors hover:bg-slate-800 md:hidden"
@@ -267,7 +262,6 @@
 					</svg>
 				</button>
 
-				<!-- Carrello -->
 				<div class="relative" use:clickOutsideCarrello>
 					<button
 						on:click={toggleCartMenu}
@@ -297,13 +291,11 @@
 						{/if}
 					</button>
 
-					<!-- Menu carrello -->
 					{#if $isCartOpenMobile}
 						<CartMenu />
 					{/if}
 				</div>
 
-				<!-- Menu utente -->
 				<div class="relative" use:clickOutsideUser>
 					<button
 						on:click={toggleUserMenu}
@@ -319,7 +311,6 @@
 						</svg>
 					</button>
 
-					<!-- Dropdown menu utente -->
 					{#if isUserMenuOpen}
 						<div
 							class="absolute right-0 z-10 mt-2 w-56 rounded-md bg-white py-1 text-black shadow-lg"
@@ -363,7 +354,6 @@
 	</div>
 </nav>
 
-<!-- Overlay ricerca mobile -->
 {#if isMobileSearchOpen}
 	<div class="fixed inset-0 z-50 bg-white/50 backdrop-blur-sm" aria-modal="true">
 		<div class="p-4">

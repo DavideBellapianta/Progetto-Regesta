@@ -15,11 +15,11 @@
 		const token = localStorage.getItem('jwt_token');
 		if (token) {
 			try {
-				const profileRes = await fetch('http://127.0.0.1:5000/api/profilo', {
+				const profileRes = await fetch('http://127.0.0.1:5000/api/profilo', { //se loggato carica il carrello presente per il pagamento
 					headers: { Authorization: `Bearer ${token}` }
 				});
 
-				if (profileRes.ok) {
+				if (profileRes.ok) {//Se il profilo è ok, precompila i dati (se presenti)
 					const userProfile = await profileRes.json();
 					formData.email = userProfile.email || '';
 					formData.telefono = userProfile.telefono || '';
@@ -51,21 +51,21 @@
 	let scontrino = null;
 
 	$: subtotal = $cart.reduce((sum, item) => sum + item.prezzo_lordo * item.quantita, 0);
-
+	//Costi di spedizione e subtotal sono dinamici, cambiano con l'interazione
 	$: shippingCost = (() => {
 		if (selectedShipping === 'rapido' && subtotal < 100) return 10.0;
 		return 0.0;
 	})();
 	$: total = subtotal + shippingCost;
 
-	async function handlePayment() {
+	async function handlePayment() { //Gestione pagamento
 		const token = localStorage.getItem('jwt_token');
 		if (!token) {
 			goto('/login?redirectTo=/pagamento');
 			return;
 		}
 		try {
-			const scontrinoRes = await fetch('http://127.0.0.1:5000/api/scontrino', {
+			const scontrinoRes = await fetch('http://127.0.0.1:5000/api/scontrino', { //Se token ok, cerca di avviare lo scontrino
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
 				body: JSON.stringify($cart)
@@ -73,7 +73,7 @@
 			if (!scontrinoRes.ok) throw new Error('Errore calcolo scontrino');
 			const finalScontrino = await scontrinoRes.json();
 
-			const response = await fetch('http://127.0.0.1:5000/api/checkout', {
+			const response = await fetch('http://127.0.0.1:5000/api/checkout', { //Invia i dati per il checkout
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
 				body: JSON.stringify({

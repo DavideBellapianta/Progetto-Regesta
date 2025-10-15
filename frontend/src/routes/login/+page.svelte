@@ -9,7 +9,7 @@
 	let isLoading = false;
 	let isPasswordVisible = false;
 
-	async function handleLogin() {
+	async function handleLogin() { //Gestione del login
 		isLoading = true;
 		error = null;
 		try {

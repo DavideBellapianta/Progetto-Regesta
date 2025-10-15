@@ -16,13 +16,13 @@
 	onMount(async () => {
 		try {
 			const catResponse = await fetch('http://127.0.0.1:5000/api/categorie');
-			if (catResponse.ok) allCategories = await catResponse.json();
+			if (catResponse.ok) allCategories = await catResponse.json(); //carica le categorie
 		} catch (e) {
 			console.error("Errore caricamento categorie:", e);
 		}
 	});
 
-	$: if ($page.url.searchParams) {
+	$: if ($page.url.searchParams) { // aggiorna i parametri, nome e vari filtri
 		const params = $page.url.searchParams;
 		searchTerm = params.get('q') || '';
 		selectedCategory = params.get('categoria') || '';
@@ -32,7 +32,7 @@
 		fetchResults();
 	}
 
-	async function fetchResults() {
+	async function fetchResults() { //fetch per i risultati (API)
 		isLoading = true;
 		const params = new URLSearchParams({
 			q: searchTerm,
@@ -51,7 +51,7 @@
 		isLoading = false;
 	}
 
-	function applyFilters() {
+	function applyFilters() { //Applica i filtri aggiornando url
 		const params = new URLSearchParams({
 			q: searchTerm,
 			categoria: selectedCategory,

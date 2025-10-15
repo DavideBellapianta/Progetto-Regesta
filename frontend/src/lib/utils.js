@@ -1,8 +1,8 @@
 /**
- * @param {string} name La stringa da convertire.
- * @returns {string} Lo slug generato.
+ * @param {string} name 
+ * @returns {string} slug
  */
-export function createSlug(name) {
+export function createSlug(name) { //Crea lo slug per i prodotti (URL)
 	if (!name) return '';
 	return name
 		.toLowerCase()

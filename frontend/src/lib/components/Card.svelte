@@ -2,18 +2,17 @@
 	import { cart, favorites } from '../stores.js';
 	import { createSlug } from '$lib/utils.js';
 
-	import cuore from '$lib/assets/heart_pieno.png';
 	import cuore_vuoto from '$lib/assets/heart_vuoto.png';
 	import cuore_rosso from '$lib/assets/heart_pieno_rosso.png';
 
 	export let prodotto;
 
 	function addToCart() {
-		cart.add(prodotto);
+		cart.add(prodotto); //Aggiunge il prodotto al carrello
 	}
 
 	function toggleFavorite() {
-		favorites.toggle(prodotto);
+		favorites.toggle(prodotto); //Aggiunge o rimuove dai preferiti
 	}
 
 	let isFavorite = false;
