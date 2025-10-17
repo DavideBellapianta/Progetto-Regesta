@@ -517,5 +517,14 @@ def restock_prodotto():
         print(f"Errore durante il restock: {e}")
         return jsonify({"error": "Errore interno del server"}), 500
 
+@app.route('/api/debug-slugs', methods=['GET'])
+def debug_slugs():
+    slugs = []
+    for prodotto in collection.find({}, {'_id': 0, 'nome': 1}):
+        nome = prodotto['nome']
+        slug_db = re.sub(r'[^\w-]+', '', re.sub(r'[()]', '', nome.lower().replace(' ', '-')))
+        slugs.append({"nome": nome, "slug": slug_db})
+    return jsonify(slugs)
+
 if __name__ == '__main__':
     app.run(debug=True)
